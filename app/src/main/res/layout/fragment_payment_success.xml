@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_shop_green"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thanh toán thành công!"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#1A1C1E"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tvSuccessMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mã vé đã được gửi tới email của bạn."
+            android:textSize="14sp"
+            android:textColor="#757575"
+            android:gravity="center"
+            android:layout_marginBottom="40dp"/>
+
+        <Button
+            android:id="@+id/btnBackHome"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="Quay về trang chủ"
+            android:backgroundTint="#0066FF"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            app:cornerRadius="26dp"
+            android:layout_marginBottom="48dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EEF0F2"
+            android:layout_marginBottom="32dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sự kiện liên quan có thể bạn thích"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#1A1C1E"
+            android:layout_gravity="start"
+            android:layout_marginBottom="16dp"/>
+
+        <ListView
+            android:id="@+id/listRelatedEvents"
+            android:layout_width="match_parent"
+            android:layout_height="600dp"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="12dp"
+            android:scrollbars="none"
+            android:nestedScrollingEnabled="false"/>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

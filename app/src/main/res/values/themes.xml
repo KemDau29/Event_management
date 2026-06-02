@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+
+
+    <style name="Theme.Event_management" parent="Base.Theme.Event_management" />
+
+    <style name="Base.Theme.Event_management" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#0066FF</item> <item name="android:statusBarColor">#FFFFFF</item> <item name="android:windowLightStatusBar">true</item> </style>
+
+    <style name="CircleImageView">
+        <item name="cornerSize">50%</item>
+    </style>
+</resources>

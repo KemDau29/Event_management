@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "283404444236",
+    "project_id": "project-sieu-vip",
+    "storage_bucket": "project-sieu-vip.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283404444236:android:266c698ea8fb799ccc0ae9",
+        "android_client_info": {
+          "package_name": "com.example.event_management"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB93nqHvWGJxlA6GSs7hg-VgFiVMeFm3Hw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283404444236:android:03925b52a934e0b6cc0ae9",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB93nqHvWGJxlA6GSs7hg-VgFiVMeFm3Hw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
