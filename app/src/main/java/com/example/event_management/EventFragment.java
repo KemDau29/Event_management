@@ -66,11 +66,6 @@ public class EventFragment extends Fragment {
 
         btnFilter.setOnClickListener(this::showFilterMenu);
 
-        View btnNotification = view.findViewById(R.id.btnNotification);
-        if (btnNotification != null) {
-            btnNotification.setOnClickListener(v -> openNotifications());
-        }
-
         // 1. Ánh xạ và thiết lập ListView Events
         adapter = new EventAdapter(requireContext());
         ListView listEvents = view.findViewById(R.id.listEvents);
@@ -190,13 +185,5 @@ public class EventFragment extends Fragment {
     private void filterEventsByCategory(Category category) {
         currentCategory = category;
         filterAndSort();
-    }
-
-    private void openNotifications() {
-        NotificationsFragment notificationsFragment = new NotificationsFragment();
-        getParentFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, notificationsFragment)
-                .addToBackStack(null)
-                .commit();
     }
 }

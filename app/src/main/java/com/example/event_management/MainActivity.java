@@ -23,8 +23,8 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageView imgHome, imgEvents, imgCart, imgProfile;
-    private TextView tvHome, tvEvents, tvCart, tvProfile;
+    private ImageView imgHome, imgEvents, imgTickets, imgCart, imgProfile;
+    private TextView tvHome, tvEvents, tvTickets, tvCart, tvProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         // 1. Ánh xạ các vùng Layout nút
         LinearLayout btnHome    = findViewById(R.id.btnHome);
         LinearLayout btnEvents  = findViewById(R.id.btnEvents);
+        LinearLayout btnTickets = findViewById(R.id.btnMyTicketsNav);
         LinearLayout btnCart    = findViewById(R.id.btnCart);
         LinearLayout btnProfile = findViewById(R.id.btnProfile);
 
@@ -50,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
 
         imgEvents  = (ImageView) btnEvents.getChildAt(0);
         tvEvents   = (TextView)  btnEvents.getChildAt(1);
+
+        imgTickets = (ImageView) btnTickets.getChildAt(0);
+        tvTickets  = (TextView)  btnTickets.getChildAt(1);
 
         imgCart    = (ImageView) btnCart.getChildAt(0);
         tvCart     = (TextView)  btnCart.getChildAt(1);
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         // 4. Sự kiện click cho các nút
         btnHome.setOnClickListener(v -> replaceFragment(new HomeFragment(), "home"));
         btnEvents.setOnClickListener(v -> replaceFragment(new EventFragment(), "events"));
+        btnTickets.setOnClickListener(v -> replaceFragment(new MyTicketsFragment(), "tickets"));
         btnCart.setOnClickListener(v -> replaceFragment(new CartFragment(), "cart"));
         btnProfile.setOnClickListener(v -> replaceFragment(new PersonFragment(), "profile"));
     }
@@ -296,6 +301,9 @@ public class MainActivity extends AppCompatActivity {
 
         imgEvents.setColorFilter(activeTab.equals("events") ? active : inactive);
         tvEvents.setTextColor(activeTab.equals("events") ? active : inactive);
+
+        imgTickets.setColorFilter(activeTab.equals("tickets") ? active : inactive);
+        tvTickets.setTextColor(activeTab.equals("tickets") ? active : inactive);
 
         imgCart.setColorFilter(activeTab.equals("cart") ? active : inactive);
         tvCart.setTextColor(activeTab.equals("cart") ? active : inactive);
