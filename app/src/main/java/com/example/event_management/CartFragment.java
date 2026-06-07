@@ -1,52 +1,41 @@
 package com.example.event_management;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button; // Thêm import
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import android.app.AlertDialog;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button; 
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.example.event_management.adapters.CartAdapter;
 import com.example.event_management.helpers.EmailHelper;
 import com.example.event_management.models.CartItem;
 import com.example.event_management.models.Order;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Random;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 
 public class CartFragment extends Fragment {
 
     private TextView tvTotalCartPrice, tvSubtotal, tvDiscountAmount;
     private EditText edtCoupon;
-    private Button btnCheckout, btnApplyCoupon;
+    private Button btnCheckout;
     private View layoutDiscount;
     private List<String> usedEmails = new ArrayList<>();
     private CartAdapter adapter;
@@ -69,7 +58,7 @@ public class CartFragment extends Fragment {
         tvDiscountAmount = view.findViewById(R.id.tvDiscountAmount);
         layoutDiscount = view.findViewById(R.id.layoutDiscount);
         edtCoupon = view.findViewById(R.id.edtCoupon);
-        btnApplyCoupon = view.findViewById(R.id.btnApplyCoupon);
+        Button btnApplyCoupon = view.findViewById(R.id.btnApplyCoupon);
         btnCheckout = view.findViewById(R.id.btnCheckout);
 
         db = FirebaseFirestore.getInstance();
@@ -77,7 +66,7 @@ public class CartFragment extends Fragment {
 
         ListView listCartItems = view.findViewById(R.id.listCartItems);
         cartItemList = new ArrayList<>();
-        adapter = new CartAdapter(requireContext(), () -> calculateTotalPrice());
+        adapter = new CartAdapter(requireContext(), this::calculateTotalPrice);
         listCartItems.setAdapter(adapter);
 
         if (mAuth.getCurrentUser() != null) {
@@ -91,20 +80,21 @@ public class CartFragment extends Fragment {
 
         // Xử lý áp dụng mã giảm giá
         btnApplyCoupon.setOnClickListener(v -> {
-            db.collection("voucher").get()addOnSuccessListener(documentSnapshot -> {
-            String code = edtCoupon.getText().toString().trim();
-            if (code.equalsIgnoreCase("DIS10")) {
-                discountPercent = 0.1;
-                layoutDiscount.setVisibility(View.VISIBLE);
-                Toast.makeText(getContext(), "Đã áp dụng mã giảm giá 10%!", Toast.LENGTH_SHORT).show();
-            } else {
-                discountPercent = 0.0;
-                layoutDiscount.setVisibility(View.GONE);
-                if (!code.isEmpty()) {
-                    Toast.makeText(getContext(), "Mã giảm giá không hợp lệ!", Toast.LENGTH_SHORT).show();
+            db.collection("voucher").get().addOnSuccessListener(documentSnapshot -> {
+                String code = edtCoupon.getText().toString().trim();
+                if (code.equalsIgnoreCase("DIS10")) {
+                    discountPercent = 0.1;
+                    layoutDiscount.setVisibility(View.VISIBLE);
+                    Toast.makeText(getContext(), "Đã áp dụng mã giảm giá 10%!", Toast.LENGTH_SHORT).show();
+                } else {
+                    discountPercent = 0.0;
+                    layoutDiscount.setVisibility(View.GONE);
+                    if (!code.isEmpty()) {
+                        Toast.makeText(getContext(), "Mã giảm giá không hợp lệ!", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
-            calculateTotalPrice();
+                calculateTotalPrice();
+            });
         });
 
         btnCheckout.setOnClickListener(v -> {
@@ -155,9 +145,9 @@ public class CartFragment extends Fragment {
         }
 
         // Tạo mã đơn hàng
-        String tempOrderId = "ORD" + System.currentTimeMillis() % 1000000;
-        tvOrderId.setText("Mã đơn hàng: #" + tempOrderId);
-        tvTotal.setText(String.format(java.util.Locale.getDefault(), "%dđ", currentTotal));
+        String tempOrderId = "ORD" + (System.currentTimeMillis() % 1000000);
+        tvOrderId.setText(getString(R.string.order_id_format, tempOrderId));
+        tvTotal.setText(String.format(Locale.getDefault(), "%dđ", currentTotal));
 
         // Đổ danh sách sản phẩm vào dialog
         for (CartItem item : chosenItems) {
@@ -166,8 +156,8 @@ public class CartFragment extends Fragment {
             TextView text2 = itemView.findViewById(android.R.id.text2);
             
             text1.setText(item.getTitle());
-            text1.setTextColor(getResources().getColor(android.R.color.black));
-            text2.setText(String.format("SL: %d | Giá: %dđ", item.getQuantity(), item.getPrice()));
+            text1.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black));
+            text2.setText(String.format(Locale.getDefault(), "SL: %d | Giá: %dđ", item.getQuantity(), item.getPrice()));
             
             layoutItems.addView(itemView);
         }
@@ -188,16 +178,24 @@ public class CartFragment extends Fragment {
     }
 
     private void loadUsedEmails() {
-        String uid = mAuth.getCurrentUser().getUid();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) return;
+        String uid = currentUser.getUid();
         db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                List<String> emails = (List<String>) documentSnapshot.get("usedEmails");
-                usedEmails.clear();
-                if (emails != null) {
-                    usedEmails.addAll(emails);
+                Object usedEmailsObj = documentSnapshot.get("usedEmails");
+                List<String> emails;
+                if (usedEmailsObj instanceof List) {
+                    emails = (List<String>) usedEmailsObj;
+                } else {
+                    emails = new ArrayList<>();
                 }
+                
+                usedEmails.clear();
+                usedEmails.addAll(emails);
+
                 // Luôn thêm email đăng ký vào danh sách nếu chưa có
-                String primaryEmail = mAuth.getCurrentUser().getEmail();
+                String primaryEmail = currentUser.getEmail();
                 if (primaryEmail != null && !usedEmails.contains(primaryEmail)) {
                     usedEmails.add(0, primaryEmail);
                 }
@@ -297,23 +295,23 @@ public class CartFragment extends Fragment {
 
     private void calculateTotalPrice() {
         subtotal = 0;
-        boolean hasChosenItem = false;
+        boolean isItemChosen = false;
 
         for (CartItem item : cartItemList) {
             if (item.isChosen()) {
                 subtotal += (long) item.getPrice() * item.getQuantity();
-                hasChosenItem = true;
+                isItemChosen = true;
             }
         }
 
         long discountAmount = (long) (subtotal * discountPercent);
         currentTotal = subtotal - discountAmount;
 
-        tvSubtotal.setText(String.format(java.util.Locale.getDefault(), "%dđ", subtotal));
-        tvDiscountAmount.setText(String.format(java.util.Locale.getDefault(), "-%dđ", discountAmount));
-        tvTotalCartPrice.setText(String.format(java.util.Locale.getDefault(), "%dđ", currentTotal));
+        tvSubtotal.setText(String.format(Locale.getDefault(), "%dđ", subtotal));
+        tvDiscountAmount.setText(String.format(Locale.getDefault(), "-%dđ", discountAmount));
+        tvTotalCartPrice.setText(String.format(Locale.getDefault(), "%dđ", currentTotal));
 
-        if (hasChosenItem) {
+        if (isItemChosen) {
             btnCheckout.setEnabled(true);
             btnCheckout.setAlpha(1.0f);
         } else {
