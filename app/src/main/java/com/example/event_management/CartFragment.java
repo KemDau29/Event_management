@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import com.example.event_management.adapters.CartAdapter;
 import com.example.event_management.helpers.EmailHelper;
 import com.example.event_management.models.CartItem;
+import com.example.event_management.models.Notification;
 import com.example.event_management.models.Order;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -246,6 +247,42 @@ public class CartFragment extends Fragment {
             batch.update(db.collection("users").document(uid), "usedEmails", usedEmails);
         }
 
+        // Tạo thông báo mua vé và nhắc sự kiện sắp diễn ra
+        String notificationId = db.collection("users").document(uid)
+                .collection("notifications").document().getId();
+        Notification purchaseNotification = new Notification();
+        purchaseNotification.setId(notificationId);
+        purchaseNotification.setUserId(uid);
+        purchaseNotification.setTitle("Đăng ký thành công sự kiện");
+        purchaseNotification.setMessage("Đơn hàng #" + orderId + " đã được xác nhận. Mã vé đã được gửi tới email.");
+        purchaseNotification.setType("PURCHASE_SUCCESS");
+        purchaseNotification.setTimestamp(new Date());
+        purchaseNotification.setOrderId(orderId);
+        purchaseNotification.setTicketInfo(buildTicketSummary(chosenItems));
+        purchaseNotification.setEventId(buildEventSummary(chosenItems));
+
+        batch.set(db.collection("users").document(uid)
+                .collection("notifications").document(notificationId), purchaseNotification);
+
+        for (CartItem item : chosenItems) {
+            if (item.getDate() != null && item.getDate().after(new Date())) {
+                String reminderId = db.collection("users").document(uid)
+                        .collection("notifications").document().getId();
+                Notification reminder = new Notification();
+                reminder.setId(reminderId);
+                reminder.setUserId(uid);
+                reminder.setTitle("Sự kiện sắp diễn ra");
+                reminder.setMessage("Sự kiện " + item.getTitle() + " sẽ diễn ra vào " + item.getFormattedDate() + ".");
+                reminder.setType("EVENT_REMINDER");
+                reminder.setTimestamp(new Date());
+                reminder.setOrderId(orderId);
+                reminder.setTicketInfo(item.getConfirmCode());
+                reminder.setEventId(item.getTitle());
+                batch.set(db.collection("users").document(uid)
+                        .collection("notifications").document(reminderId), reminder);
+            }
+        }
+
         batch.commit().addOnSuccessListener(aVoid -> {
             Toast.makeText(getContext(), "Thanh toán thành công! Đang gửi mã vé...", Toast.LENGTH_SHORT).show();
             
@@ -318,5 +355,34 @@ public class CartFragment extends Fragment {
             btnCheckout.setEnabled(false);
             btnCheckout.setAlpha(0.5f);
         }
+    }
+
+    private String buildTicketSummary(List<CartItem> chosenItems) {
+        StringBuilder tickets = new StringBuilder();
+        for (CartItem item : chosenItems) {
+            if (item.getConfirmCode() != null) {
+                tickets.append(item.getTitle()).append(": ").append(item.getConfirmCode()).append("\n");
+            }
+        }
+        return tickets.toString().trim();
+    }
+
+    private String buildEventSummary(List<CartItem> chosenItems) {
+        if (chosenItems == null || chosenItems.isEmpty()) {
+            return "";
+        }
+        if (chosenItems.size() == 1) {
+            return chosenItems.get(0).getTitle();
+        }
+        StringBuilder summary = new StringBuilder();
+        for (int i = 0; i < chosenItems.size(); i++) {
+            if (i > 0) summary.append(", ");
+            summary.append(chosenItems.get(i).getTitle());
+            if (summary.length() > 100) {
+                summary.append("...");
+                break;
+            }
+        }
+        return summary.toString();
     }
 }
