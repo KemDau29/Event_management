@@ -17,8 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="24dp"
-            android:paddingEnd="24dp"
-            android:paddingTop="28dp"
+            android:paddingEnd="22dp"
+            android:paddingTop="16dp"
             android:paddingBottom="16dp"
             android:background="#FFFFFF">
 
@@ -53,7 +53,7 @@
                 android:id="@+id/cardNotification"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 app:cardCornerRadius="20dp"
