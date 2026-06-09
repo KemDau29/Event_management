@@ -74,6 +74,11 @@ public class HomeFragment extends Fragment {
 
         btnFilter.setOnClickListener(v -> showFilterMenu(v));
 
+        View btnNotification = view.findViewById(R.id.btnNotification);
+        if (btnNotification != null) {
+            btnNotification.setOnClickListener(v -> openNotifications());
+        }
+
         recyclerViewUpcomingEvents = view.findViewById(R.id.listUpcomingEvents);
 
         recyclerViewUpcomingEvents.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -209,6 +214,14 @@ public class HomeFragment extends Fragment {
         event_detail detailFragment = event_detail.newInstance(event);
         getParentFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, detailFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void openNotifications() {
+        NotificationsFragment notificationsFragment = new NotificationsFragment();
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, notificationsFragment)
                 .addToBackStack(null)
                 .commit();
     }
