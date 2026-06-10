@@ -18,7 +18,7 @@
         android:orientation="horizontal"
         android:background="#FFFFFF"
         android:elevation="8dp"
-        android:weightSum="4">
+        android:weightSum="5">
 
         <!-- Trang chủ -->
         <LinearLayout
@@ -58,6 +58,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sự kiện"
+                android:textSize="10sp"
+                android:textColor="#AAAAAA"/>
+        </LinearLayout>
+
+        <!-- Trò chuyện -->
+        <LinearLayout
+            android:id="@+id/btnChat"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_notification"
+                android:tint="#AAAAAA"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chat"
                 android:textSize="10sp"
                 android:textColor="#AAAAAA"/>
         </LinearLayout>
@@ -102,9 +123,6 @@
                 android:textSize="10sp"
                 android:textColor="#AAAAAA"/>
         </LinearLayout>
-
-
-
     </LinearLayout>
 
 </LinearLayout>
