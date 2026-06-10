@@ -22,6 +22,7 @@ public class AdminEventAdapter extends BaseAdapter {
     public interface OnEventActionListener {
         void onEdit(Event event);
         void onDelete(Event event);
+        void onDetail(Event event);
     }
 
     public AdminEventAdapter(Context context, OnEventActionListener listener) {
@@ -70,6 +71,7 @@ public class AdminEventAdapter extends BaseAdapter {
 
             holder.btnEdit.setOnClickListener(v -> listener.onEdit(event));
             holder.btnDelete.setOnClickListener(v -> listener.onDelete(event));
+            convertView.setOnClickListener(v -> listener.onDetail(event));
         }
 
         return convertView;

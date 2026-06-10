@@ -34,6 +34,20 @@ public class AdminUserFragment extends Fragment {
         adapter = new UserAdapter();
         listView.setAdapter(adapter);
 
+        listView.setOnItemClickListener((adapterView, v, i, l) -> {
+            Map<String, Object> userData = userList.get(i);
+            AdminUserDetailFragment fragment = new AdminUserDetailFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("userId", (String) userData.get("uid"));
+            bundle.putString("userFullname", (String) userData.get("fullname"));
+            fragment.setArguments(bundle);
+
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.admin_fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         loadUsers();
 
         return view;

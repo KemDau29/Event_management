@@ -74,6 +74,20 @@ public class AdminEventFragment extends Fragment {
             public void onDelete(Event event) {
                 deleteEvent(event);
             }
+
+            @Override
+            public void onDetail(Event event) {
+                AdminEventDetailFragment fragment = new AdminEventDetailFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("eventId", event.getId());
+                bundle.putString("eventTitle", event.getTitle());
+                fragment.setArguments(bundle);
+
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.admin_fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
         });
 
         listView.setAdapter(adapter);
