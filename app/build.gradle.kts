@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.event_management"
-    compileSdk = 36 // Đưa về cấu hình chuẩn, đơn giản của compileSdk
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.event_management"
@@ -32,7 +32,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    // ĐOẠN ĐÃ SỬA: Cú pháp chuẩn xác cho Kotlin DSL (.kts)
     packaging {
         resources {
             excludes.add("META-INF/NOTICE.md")
@@ -47,13 +46,25 @@ dependencies {
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
+    implementation(libs.material)
+    
+    // Firebase
     implementation(libs.firebase.firestore)
-    implementation("com.google.firebase:firebase-auth:23.1.0")
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
+    
+    // UI & Charts
+    implementation(libs.glide)
+    implementation(libs.mp.android.chart)
+    
+    // Maps
+    implementation(libs.play.services.maps)
+    
+    // Networking & Utilities
+    implementation(libs.okhttp)
     implementation("com.sun.mail:android-mail:1.6.7")
     implementation("com.sun.mail:android-activation:1.6.7")
-    implementation(libs.material)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
