@@ -111,6 +111,17 @@ public class event_detail extends Fragment {
             tvPrice.setText(String.format(java.util.Locale.getDefault(), "%dđ", event.getPrice()));
             tvDate.setText(String.format("📅 %s", event.getFormattedDate()));
             tvLocation.setText(String.format("📍 %s", event.getLocation()));
+            tvLocation.setOnClickListener(v -> {
+                if (event.getLatitude() != 0 && event.getLongitude() != 0) {
+                    Intent mapIntent = new Intent(getContext(), MapsActivity.class);
+                    mapIntent.putExtra("lat", event.getLatitude());
+                    mapIntent.putExtra("lng", event.getLongitude());
+                    mapIntent.putExtra("title", event.getTitle());
+                    startActivity(mapIntent);
+                } else {
+                    Toast.makeText(getContext(), "Vị trí chưa được cập nhật tọa độ", Toast.LENGTH_SHORT).show();
+                }
+            });
             tvDesc.setText(event.getDescription());
 
             String eventId = event.getId();
