@@ -23,8 +23,8 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageView imgHome, imgEvents, imgCart, imgProfile, imgChat;
-    private TextView tvHome, tvEvents, tvCart, tvProfile, tvChat;
+    private ImageView imgHome, imgEvents, imgTickets, imgCart, imgProfile, imgChat;
+    private TextView tvHome, tvEvents, tvTickets, tvCart, tvProfile, tvChat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout btnHome    = findViewById(R.id.btnHome);
         LinearLayout btnEvents  = findViewById(R.id.btnEvents);
         LinearLayout btnChat    = findViewById(R.id.btnChat);
+        LinearLayout btnTickets = findViewById(R.id.btnMyTicketsNav);
         LinearLayout btnCart    = findViewById(R.id.btnCart);
         LinearLayout btnProfile = findViewById(R.id.btnProfile);
 
@@ -54,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
 
         imgChat    = (ImageView) btnChat.getChildAt(0);
         tvChat     = (TextView)  btnChat.getChildAt(1);
+
+        imgTickets = (ImageView) btnTickets.getChildAt(0);
+        tvTickets  = (TextView)  btnTickets.getChildAt(1);
 
         imgCart    = (ImageView) btnCart.getChildAt(0);
         tvCart     = (TextView)  btnCart.getChildAt(1);
@@ -70,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         btnHome.setOnClickListener(v -> replaceFragment(new HomeFragment(), "home"));
         btnEvents.setOnClickListener(v -> replaceFragment(new EventFragment(), "events"));
         btnChat.setOnClickListener(v -> replaceFragment(new ChatListFragment(), "chat"));
+        btnTickets.setOnClickListener(v -> replaceFragment(new MyTicketsFragment(), "tickets"));
         btnCart.setOnClickListener(v -> replaceFragment(new CartFragment(), "cart"));
         btnProfile.setOnClickListener(v -> replaceFragment(new PersonFragment(), "profile"));
     }
@@ -304,6 +309,9 @@ public class MainActivity extends AppCompatActivity {
 
         imgChat.setColorFilter(activeTab.equals("chat") ? active : inactive);
         tvChat.setTextColor(activeTab.equals("chat") ? active : inactive);
+
+        imgTickets.setColorFilter(activeTab.equals("tickets") ? active : inactive);
+        tvTickets.setTextColor(activeTab.equals("tickets") ? active : inactive);
 
         imgCart.setColorFilter(activeTab.equals("cart") ? active : inactive);
         tvCart.setTextColor(activeTab.equals("cart") ? active : inactive);
