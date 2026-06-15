@@ -102,6 +102,18 @@ public class HomeFragment extends Fragment {
         }
 
         viewModel = new ViewModelProvider(this).get(EventViewModel.class);
+
+        View btnNotification = view.findViewById(R.id.btnNotification);
+        if (btnNotification != null) {
+            btnNotification.setOnClickListener(v -> {
+                NotificationsFragment notificationsFragment = new NotificationsFragment();
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, notificationsFragment)
+                        .addToBackStack(null)
+                        .commit();
+            });
+        }
+
         viewModel.getEvents().observe(getViewLifecycleOwner(), events -> {
             if (events != null && !events.isEmpty()) {
                 allEvents.clear();

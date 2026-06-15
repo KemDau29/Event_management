@@ -91,10 +91,12 @@ public class PersonFragment extends Fragment {
         if (currentUser != null) {
             layoutUserInfo.setVisibility(View.VISIBLE);
             layoutLoginPrompt.setVisibility(View.GONE);
+            menuLogout.setVisibility(View.VISIBLE); // Hiện nút đăng xuất khi đã login
             loadUserInfo(currentUser.getUid());
         } else {
             layoutUserInfo.setVisibility(View.GONE);
             layoutLoginPrompt.setVisibility(View.VISIBLE);
+            menuLogout.setVisibility(View.GONE); // Ẩn nút đăng xuất khi chưa login
         }
     }
 
