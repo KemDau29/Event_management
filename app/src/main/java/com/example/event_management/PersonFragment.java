@@ -1,23 +1,31 @@
 package com.example.event_management;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class PersonFragment extends Fragment {
 
+    private static final String TAG = "PersonFragment";
     private View layoutUserInfo, layoutLoginPrompt;
+    private ImageView imgAvatar;
     private TextView tvPersonName, tvPersonEmail;
     private Button btnGoToLogin;
     private View menuLogout, menuWishlist, menuHistory, menuEditProfile, menuChangePassword;
@@ -37,6 +45,7 @@ public class PersonFragment extends Fragment {
         // Ánh xạ View
         layoutUserInfo = view.findViewById(R.id.layoutUserInfo);
         layoutLoginPrompt = view.findViewById(R.id.layoutLoginPrompt);
+        imgAvatar = view.findViewById(R.id.imgAvatar);
         tvPersonName = view.findViewById(R.id.tvPersonName);
         tvPersonEmail = view.findViewById(R.id.tvPersonEmail);
         btnGoToLogin = view.findViewById(R.id.btnGoToLogin);
@@ -117,9 +126,32 @@ public class PersonFragment extends Fragment {
                     if (documentSnapshot.exists()) {
                         String name = documentSnapshot.getString("fullname");
                         String email = documentSnapshot.getString("email");
+                        String avatarUrl = documentSnapshot.getString("avatarUrl");
+                        
                         tvPersonName.setText(name);
                         tvPersonEmail.setText(email);
+                        
+                        if (avatarUrl != null && !avatarUrl.isEmpty() && !avatarUrl.equals("null")) {
+                            if (avatarUrl.startsWith("http")) {
+                                // Nếu là URL từ Firebase Storage
+                                Glide.with(this).load(avatarUrl).into(imgAvatar);
+                            } else {
+                                // Fallback cho Base64 nếu có
+                                try {
+                                    byte[] decodedString = Base64.decode(avatarUrl, Base64.DEFAULT);
+                                    Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                    if (decodedBitmap != null) {
+                                        imgAvatar.setImageBitmap(decodedBitmap);
+                                    }
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Failed to decode Base64 image", e);
+                                }
+                            }
+                        }
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to load user info", e);
                 });
     }
 
