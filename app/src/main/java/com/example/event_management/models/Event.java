@@ -19,7 +19,7 @@ public class Event implements Serializable {
     private double longitude;
     
     // Các field mới
-    private DocumentReference cate;
+    private transient DocumentReference cate;
 
 
     @PropertyName("cate")

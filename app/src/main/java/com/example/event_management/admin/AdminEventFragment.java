@@ -46,6 +46,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import android.location.Address;
+import android.location.Geocoder;
+import java.io.IOException;
 
 public class AdminEventFragment extends Fragment {
 
@@ -118,6 +121,8 @@ public class AdminEventFragment extends Fragment {
         EditText edtTitle = dialogView.findViewById(R.id.edtAdminEventTitle);
         EditText edtDesc = dialogView.findViewById(R.id.edtAdminEventDesc);
         EditText edtLocation = dialogView.findViewById(R.id.edtAdminEventLocation);
+        EditText edtLat = dialogView.findViewById(R.id.edtAdminEventLat);
+        EditText edtLng = dialogView.findViewById(R.id.edtAdminEventLng);
         EditText edtPrice = dialogView.findViewById(R.id.edtAdminEventPrice);
         EditText edtRemaining = dialogView.findViewById(R.id.edtAdminEventRemaining);
         EditText edtImageUrl = dialogView.findViewById(R.id.edtAdminEventImageUrl);
@@ -136,6 +141,8 @@ public class AdminEventFragment extends Fragment {
             edtTitle.setText(event.getTitle());
             edtDesc.setText(event.getDescription());
             edtLocation.setText(event.getLocation());
+            edtLat.setText(String.valueOf(event.getLatitude()));
+            edtLng.setText(String.valueOf(event.getLongitude()));
             edtPrice.setText(String.valueOf(event.getPrice()));
             edtRemaining.setText(String.valueOf(event.getRemainingTickets()));
             edtImageUrl.setText(event.getImageUrl());
@@ -163,6 +170,8 @@ public class AdminEventFragment extends Fragment {
             String title = edtTitle.getText().toString().trim();
             String desc = edtDesc.getText().toString().trim();
             String loc = edtLocation.getText().toString().trim();
+            String latStr = edtLat.getText().toString().trim();
+            String lngStr = edtLng.getText().toString().trim();
             String priceStr = edtPrice.getText().toString().trim();
             String remainStr = edtRemaining.getText().toString().trim();
             String img = edtImageUrl.getText().toString().trim();
@@ -176,6 +185,24 @@ public class AdminEventFragment extends Fragment {
             newEvent.setTitle(title);
             newEvent.setDescription(desc);
             newEvent.setLocation(loc);
+
+            // Tự động tìm tọa độ nếu để trống hoặc bằng 0
+            if (latStr.isEmpty() || lngStr.isEmpty() || (Double.parseDouble(latStr) == 0 && Double.parseDouble(lngStr) == 0)) {
+                Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+                try {
+                    List<Address> addresses = geocoder.getFromLocationName(loc, 1);
+                    if (addresses != null && !addresses.isEmpty()) {
+                        newEvent.setLatitude(addresses.get(0).getLatitude());
+                        newEvent.setLongitude(addresses.get(0).getLongitude());
+                    }
+                } catch (IOException e) {
+                    android.util.Log.e("GEOCODER", "Lỗi tìm tọa độ: " + e.getMessage());
+                }
+            } else {
+                newEvent.setLatitude(Double.parseDouble(latStr));
+                newEvent.setLongitude(Double.parseDouble(lngStr));
+            }
+
             newEvent.setPrice(Integer.parseInt(priceStr));
             newEvent.setRemainingTickets(Integer.parseInt(remainStr));
             newEvent.setImageUrl(img);

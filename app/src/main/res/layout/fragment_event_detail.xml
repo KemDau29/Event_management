@@ -150,13 +150,50 @@
                     android:textColor="#444444"
                     android:layout_marginBottom="4dp"/>
 
-                <TextView
-                    android:id="@+id/tvDetailLocation"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="📍 Hội trường A"
-                    android:textColor="#444444"
-                    android:layout_marginBottom="24dp"/>
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="24dp">
+
+                    <TextView
+                        android:id="@+id/tvDetailLocation"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="📍 Hội trường A"
+                        android:textColor="#444444" />
+
+                    <LinearLayout
+                        android:id="@+id/btnViewMap"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:background="@drawable/card_background"
+                        android:backgroundTint="#F0F7FF"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_dialog_map"
+                            android:layout_marginEnd="4dp"
+                            android:contentDescription="Map icon" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Xem bản đồ"
+                            android:textColor="#185FA5"
+                            android:textSize="12sp"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"

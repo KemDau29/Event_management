@@ -111,17 +111,32 @@ public class event_detail extends Fragment {
             tvPrice.setText(String.format(java.util.Locale.getDefault(), "%dđ", event.getPrice()));
             tvDate.setText(String.format("📅 %s", event.getFormattedDate()));
             tvLocation.setText(String.format("📍 %s", event.getLocation()));
-            tvLocation.setOnClickListener(v -> {
-                if (event.getLatitude() != 0 && event.getLongitude() != 0) {
-                    Intent mapIntent = new Intent(getContext(), MapsActivity.class);
-                    mapIntent.putExtra("lat", event.getLatitude());
-                    mapIntent.putExtra("lng", event.getLongitude());
-                    mapIntent.putExtra("title", event.getTitle());
-                    startActivity(mapIntent);
+
+            View btnViewMap = view.findViewById(R.id.btnViewMap);
+            View.OnClickListener mapClickListener = v -> {
+                if (event.getLocation() != null && !event.getLocation().isEmpty()) {
+                    String query = event.getLocation();
+                    if (event.getLatitude() != 0 && event.getLongitude() != 0) {
+                        query = event.getLatitude() + "," + event.getLongitude() + "(" + event.getTitle() + ")";
+                    }
+                    android.net.Uri gmmIntentUri = android.net.Uri.parse("geo:0,0?q=" + android.net.Uri.encode(query));
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    try {
+                        startActivity(mapIntent);
+                    } catch (android.content.ActivityNotFoundException e) {
+                        android.net.Uri webUri = android.net.Uri.parse("https://www.google.com/maps/search/?api=1&query=" + android.net.Uri.encode(query));
+                        Intent webIntent = new Intent(Intent.ACTION_VIEW, webUri);
+                        startActivity(webIntent);
+                    }
                 } else {
-                    Toast.makeText(getContext(), "Vị trí chưa được cập nhật tọa độ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Không có thông tin địa điểm", Toast.LENGTH_SHORT).show();
                 }
-            });
+            };
+
+            if (btnViewMap != null) btnViewMap.setOnClickListener(mapClickListener);
+            tvLocation.setOnClickListener(mapClickListener);
+
             tvDesc.setText(event.getDescription());
 
             String eventId = event.getId();
