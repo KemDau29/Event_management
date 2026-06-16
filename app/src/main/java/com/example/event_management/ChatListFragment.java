@@ -187,6 +187,7 @@ public class ChatListFragment extends Fragment {
                 Map<String, Object> friendMap = new HashMap<>();
                 friendMap.put("uid", friendId);
                 friendMap.put("fullname", doc.getString("fullname"));
+                friendMap.put("avatarUrl", doc.getString("avatarUrl"));
                 friendMap.put("timestamp", 0L);
                 friendMap.put("lastMessage", "Bắt đầu trò chuyện ngay");
 

@@ -36,9 +36,30 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatVi
         Map<String, Object> chat = chatList.get(position);
         String name = (String) chat.get("fullname");
         String lastMessage = (String) chat.get("lastMessage");
+        String avatarUrl = (String) chat.get("avatarUrl");
         
         holder.txtUserName.setText(name);
         holder.txtLastMessage.setText(lastMessage != null ? lastMessage : "Chưa có tin nhắn");
+
+        if (avatarUrl != null && !avatarUrl.isEmpty() && !avatarUrl.equals("null")) {
+            if (avatarUrl.startsWith("http")) {
+                com.bumptech.glide.Glide.with(holder.itemView.getContext())
+                        .load(avatarUrl)
+                        .placeholder(R.drawable.ic_person)
+                        .circleCrop()
+                        .into(holder.imgAvatar);
+            } else {
+                try {
+                    byte[] decodedString = android.util.Base64.decode(avatarUrl, android.util.Base64.DEFAULT);
+                    android.graphics.Bitmap decodedBitmap = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                    holder.imgAvatar.setImageBitmap(decodedBitmap);
+                } catch (Exception e) {
+                    holder.imgAvatar.setImageResource(R.drawable.ic_person);
+                }
+            }
+        } else {
+            holder.imgAvatar.setImageResource(R.drawable.ic_person);
+        }
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -54,11 +75,13 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatVi
 
     public static class ChatViewHolder extends RecyclerView.ViewHolder {
         TextView txtUserName, txtLastMessage;
+        android.widget.ImageView imgAvatar;
 
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);
             txtUserName = itemView.findViewById(R.id.txtUserName);
             txtLastMessage = itemView.findViewById(R.id.txtLastMessage);
+            imgAvatar = itemView.findViewById(R.id.imgAvatar);
         }
     }
 }

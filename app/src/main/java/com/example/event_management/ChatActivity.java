@@ -3,6 +3,8 @@ package com.example.event_management;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -10,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.event_management.adapters.MessageAdapter;
 import com.example.event_management.models.Message;
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -50,6 +53,12 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerMessages);
         edtMessage = findViewById(R.id.edtMessage);
         btnSend = findViewById(R.id.btnSendMessage);
+        
+        TextView tvTitle = findViewById(R.id.tvChatReceiverName);
+        ImageView imgReceiver = findViewById(R.id.imgChatReceiverAvatar);
+        
+        tvTitle.setText(receiverName);
+        loadReceiverAvatar(imgReceiver);
 
         adapter = new MessageAdapter(messageList, senderId);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -97,5 +106,28 @@ public class ChatActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    private void loadReceiverAvatar(ImageView imageView) {
+        db.collection("users").document(receiverId).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                String avatarUrl = documentSnapshot.getString("avatarUrl");
+                if (avatarUrl != null && !avatarUrl.isEmpty() && !avatarUrl.equals("null")) {
+                    if (avatarUrl.startsWith("http")) {
+                        Glide.with(this).load(avatarUrl).placeholder(R.drawable.ic_person).into(imageView);
+                    } else {
+                        try {
+                            byte[] decodedString = android.util.Base64.decode(avatarUrl, android.util.Base64.DEFAULT);
+                            android.graphics.Bitmap decodedBitmap = android.graphics.BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            imageView.setImageBitmap(decodedBitmap);
+                        } catch (Exception e) {
+                            imageView.setImageResource(R.drawable.ic_person);
+                        }
+                    }
+                } else {
+                    imageView.setImageResource(R.drawable.ic_person);
+                }
+            }
+        });
     }
 }

@@ -32,6 +32,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Làm trắng thanh điều hướng hệ thống (nếu có)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            getWindow().setStatusBarColor(Color.WHITE);
+            getWindow().setNavigationBarColor(Color.WHITE);
+        }
+
         setContentView(R.layout.activity_main);
 
         // 1. Ánh xạ các vùng Layout nút

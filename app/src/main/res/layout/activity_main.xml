@@ -2,7 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
 
     <!-- Vùng chứa Fragment -->
     <FrameLayout
@@ -23,7 +24,7 @@
         <!-- Background trắng cho thanh điều hướng -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="72dp"
             android:background="#FFFFFF"
             android:elevation="8dp"
             app:layout_constraintBottom_toBottomOf="parent" />

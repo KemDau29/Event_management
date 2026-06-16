@@ -27,6 +27,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.example.event_management.adapters.ShareEventAdapter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -202,6 +206,11 @@ public class event_detail extends Fragment {
                 checkWishlistStatus();
                 btnWishlist.setOnClickListener(v -> toggleWishlist());
             }
+
+            ImageView btnShareEvent = view.findViewById(R.id.btnShareEvent);
+            if (btnShareEvent != null) {
+                btnShareEvent.setOnClickListener(v -> showShareDialog());
+            }
         }
 
         return view;
@@ -376,5 +385,145 @@ public class event_detail extends Fragment {
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Lỗi khi thêm vào giỏ hàng: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void showShareDialog() {
+        if (mAuth.getCurrentUser() == null) {
+            Toast.makeText(getContext(), "Vui lòng đăng nhập để chia sẻ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_share_event);
+        
+        // Set transparent scrim color to avoid dark overlay
+        bottomSheetDialog.getWindow().setBackgroundDrawable(null);
+
+        RecyclerView recyclerView = bottomSheetDialog.findViewById(R.id.recyclerShareFriends);
+        TextView tvNoFriends = bottomSheetDialog.findViewById(R.id.tvNoFriends);
+        ImageView btnCloseShare = bottomSheetDialog.findViewById(R.id.btnCloseShare);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+
+        btnCloseShare.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        loadFriendsForShare(recyclerView, tvNoFriends, bottomSheetDialog);
+
+        bottomSheetDialog.show();
+    }
+
+    private void loadFriendsForShare(RecyclerView recyclerView, TextView tvNoFriends, BottomSheetDialog dialog) {
+        String currentId = mAuth.getCurrentUser().getUid();
+        List<Map<String, Object>> friendList = new ArrayList<>();
+        List<String> friendIds = new ArrayList<>();
+
+        // Load friends where current user is user1
+        db.collection("friends")
+                .whereEqualTo("user1", currentId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        String friendId = doc.getString("user2");
+                        if (friendId != null && !friendId.isEmpty()) {
+                            friendIds.add(friendId);
+                        }
+                    }
+
+                    // Also load friends where current user is user2
+                    db.collection("friends")
+                            .whereEqualTo("user2", currentId)
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots2 -> {
+                                for (QueryDocumentSnapshot doc : queryDocumentSnapshots2) {
+                                    String friendId = doc.getString("user1");
+                                    if (friendId != null && !friendId.isEmpty()) {
+                                        friendIds.add(friendId);
+                                    }
+                                }
+
+                                // Now fetch all friend details
+                                if (friendIds.isEmpty()) {
+                                    updateFriendsList(friendList, recyclerView, tvNoFriends, dialog);
+                                } else {
+                                    fetchAllFriendDetails(friendIds, 0, friendList, recyclerView, tvNoFriends, dialog);
+                                }
+                            });
+                });
+    }
+
+    private void fetchAllFriendDetails(List<String> friendIds, int index, List<Map<String, Object>> friendList, RecyclerView recyclerView, TextView tvNoFriends, BottomSheetDialog dialog) {
+        if (index >= friendIds.size()) {
+            updateFriendsList(friendList, recyclerView, tvNoFriends, dialog);
+            return;
+        }
+
+        String friendId = friendIds.get(index);
+        db.collection("users").document(friendId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> friend = new HashMap<>();
+                        friend.put("uid", friendId);
+                        friend.put("fullname", documentSnapshot.getString("fullname"));
+                        friend.put("username", documentSnapshot.getString("username"));
+                        friend.put("avatarUrl", documentSnapshot.getString("avatarUrl"));
+                        friendList.add(friend);
+                    }
+                    // Fetch next friend
+                    fetchAllFriendDetails(friendIds, index + 1, friendList, recyclerView, tvNoFriends, dialog);
+                }).addOnFailureListener(e -> {
+                    // Even if one fails, continue to the next
+                    fetchAllFriendDetails(friendIds, index + 1, friendList, recyclerView, tvNoFriends, dialog);
+                });
+    }
+
+    private void updateFriendsList(List<Map<String, Object>> friendList, RecyclerView recyclerView, TextView tvNoFriends, BottomSheetDialog dialog) {
+        if (friendList.isEmpty()) {
+            tvNoFriends.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            tvNoFriends.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+
+            ShareEventAdapter adapter = new ShareEventAdapter(getContext(), friendList, (friendId, friendName) -> {
+                shareEventWithFriend(friendId, friendName, dialog);
+            });
+            recyclerView.setAdapter(adapter);
+        }
+    }
+
+    private void shareEventWithFriend(String friendId, String friendName, BottomSheetDialog dialog) {
+        if (mAuth.getCurrentUser() == null || event == null) return;
+
+        String senderId = mAuth.getCurrentUser().getUid();
+        String chatId = getChatId(senderId, friendId);
+
+        // Create a message with event information
+        String messageText = "🎉 " + event.getTitle() + "\n" +
+                "📅 " + event.getFormattedDate() + "\n" +
+                "📍 " + event.getLocation() + "\n" +
+                "💰 " + event.getPrice() + "đ\n" +
+                "\nHãy xem sự kiện này!";
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("senderId", senderId);
+        message.put("receiverId", friendId);
+        message.put("message", messageText);
+        message.put("timestamp", System.currentTimeMillis());
+        message.put("eventId", event.getId());
+        message.put("isEventShare", true);
+
+        db.collection("chats").document(chatId).collection("messages").add(message)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(getContext(), "Đã chia sẻ sự kiện cho " + friendName, Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Lỗi khi chia sẻ: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private String getChatId(String id1, String id2) {
+        return id1.compareTo(id2) < 0 ? id1 + "_" + id2 : id2 + "_" + id1;
     }
 }
