@@ -39,6 +39,9 @@
         <activity
             android:name=".ChatActivity"
             android:exported="false" />
+        <activity
+            android:name=".FriendRequestActivity"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

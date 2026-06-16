@@ -11,13 +11,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.event_management.adapters.MessageAdapter;
 import com.example.event_management.models.Message;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -27,7 +29,7 @@ public class ChatActivity extends AppCompatActivity {
     private ImageButton btnSend;
     private MessageAdapter adapter;
     private List<Message> messageList = new ArrayList<>();
-    private DatabaseReference chatRef;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,7 @@ public class ChatActivity extends AppCompatActivity {
         receiverId = getIntent().getStringExtra("receiverId");
         receiverName = getIntent().getStringExtra("receiverName");
         senderId = FirebaseAuth.getInstance().getUid();
+        db = FirebaseFirestore.getInstance();
 
         Toolbar toolbar = findViewById(R.id.chatToolbar);
         setSupportActionBar(toolbar);
@@ -52,46 +55,47 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        chatRef = FirebaseDatabase.getInstance().getReference("chats");
-
         btnSend.setOnClickListener(v -> sendMessage());
 
         loadMessages();
+    }
+
+    private String getChatId(String id1, String id2) {
+        return id1.compareTo(id2) < 0 ? id1 + "_" + id2 : id2 + "_" + id1;
     }
 
     private void sendMessage() {
         String msgText = edtMessage.getText().toString().trim();
         if (msgText.isEmpty()) return;
 
-        Message message = new Message(senderId, receiverId, msgText, System.currentTimeMillis());
-        
-        // Use a unique key for the chat between two users
-        String chatKey = getChatKey(senderId, receiverId);
-        chatRef.child(chatKey).push().setValue(message);
-        
-        edtMessage.setText("");
-    }
+        String chatId = getChatId(senderId, receiverId);
+        Map<String, Object> message = new HashMap<>();
+        message.put("senderId", senderId);
+        message.put("receiverId", receiverId);
+        message.put("message", msgText);
+        message.put("timestamp", System.currentTimeMillis());
 
-    private String getChatKey(String id1, String id2) {
-        return id1.compareTo(id2) < 0 ? id1 + "_" + id2 : id2 + "_" + id1;
+        edtMessage.setText("");
+
+        db.collection("chats").document(chatId).collection("messages").add(message);
     }
 
     private void loadMessages() {
-        String chatKey = getChatKey(senderId, receiverId);
-        chatRef.child(chatKey).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                messageList.clear();
-                for (DataSnapshot ds : snapshot.getChildren()) {
-                    Message message = ds.getValue(Message.class);
-                    messageList.add(message);
-                }
-                adapter.notifyDataSetChanged();
-                recyclerView.scrollToPosition(messageList.size() - 1);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
+        String chatId = getChatId(senderId, receiverId);
+        db.collection("chats").document(chatId).collection("messages")
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener((value, error) -> {
+                    if (value != null) {
+                        messageList.clear();
+                        for (QueryDocumentSnapshot doc : value) {
+                            Message msg = doc.toObject(Message.class);
+                            messageList.add(msg);
+                        }
+                        adapter.notifyDataSetChanged();
+                        if (!messageList.isEmpty()) {
+                            recyclerView.scrollToPosition(messageList.size() - 1);
+                        }
+                    }
+                });
     }
 }

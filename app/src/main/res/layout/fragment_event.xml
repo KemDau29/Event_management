@@ -9,41 +9,40 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#FFFFFF"
         android:paddingStart="24dp"
-        android:paddingEnd="22dp"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:background="#FFFFFF">
+        android:paddingEnd="22dp"
+        android:paddingBottom="16dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_alignParentStart="true"
-            android:layout_centerVertical="true">
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvHomeUserName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Danh sách sự kiện"
-                android:textSize="22sp"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif-black"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
-                android:textStyle="bold"
+                android:text="Danh sách sự kiện"
                 android:textColor="#F620A3"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif-black" />
+                android:textSize="22sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Khám phá ngay !!!"
+                android:fontFamily="sans-serif-medium"
                 android:paddingStart="10dp"
-                android:textSize="14sp"
+                android:text="Khám phá ngay !!!"
                 android:textColor="#F420A2"
-                android:fontFamily="sans-serif-medium" />
-
+                android:textSize="14sp" />
 
 
         </LinearLayout>
@@ -52,21 +51,21 @@
             android:id="@+id/cardNotification"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginRight="5dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            app:cardBackgroundColor="#F5F6F8"
             app:cardCornerRadius="20dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="#F5F6F8">
+            app:cardElevation="2dp">
 
             <ImageView
                 android:id="@+id/btnNotification"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
                 android:layout_gravity="center"
+                android:contentDescription="Thông báo"
                 android:src="@drawable/ic_notification"
-                android:tint="#F420A2"
-                android:contentDescription="Thông báo" />
+                android:tint="#F420A2" />
         </androidx.cardview.widget.CardView>
     </RelativeLayout>
 
