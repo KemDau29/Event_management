@@ -195,7 +195,11 @@ public class event_detail extends Fragment {
 
             btnBack.setOnClickListener(v -> {
                 if (getActivity() != null) {
-                    getActivity().getSupportFragmentManager().popBackStack();
+                    if (getActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                    } else {
+                        getActivity().finish();
+                    }
                 }
             });
 
@@ -512,6 +516,11 @@ public class event_detail extends Fragment {
         message.put("timestamp", System.currentTimeMillis());
         message.put("eventId", event.getId());
         message.put("isEventShare", true);
+        message.put("eventTitle", event.getTitle());
+        message.put("eventImageUrl", event.getImageUrl());
+        message.put("eventDate", event.getFormattedDate());
+        message.put("eventPrice", event.getPrice());
+        message.put("eventLocation", event.getLocation());
 
         db.collection("chats").document(chatId).collection("messages").add(message)
                 .addOnSuccessListener(documentReference -> {

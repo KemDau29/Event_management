@@ -33,6 +33,29 @@ public class Message {
     public String getEventId() { return eventId; }
     public void setEventId(String eventId) { this.eventId = eventId; }
 
+    @com.google.firebase.firestore.PropertyName("isEventShare")
     public boolean isEventShare() { return isEventShare; }
+    @com.google.firebase.firestore.PropertyName("isEventShare")
     public void setEventShare(boolean eventShare) { isEventShare = eventShare; }
+
+    private String eventTitle;
+    private String eventImageUrl;
+    private String eventDate;
+    private int eventPrice;
+    private String eventLocation;
+
+    public String getEventTitle() { return eventTitle; }
+    public void setEventTitle(String eventTitle) { this.eventTitle = eventTitle; }
+
+    public String getEventImageUrl() { return eventImageUrl; }
+    public void setEventImageUrl(String eventImageUrl) { this.eventImageUrl = eventImageUrl; }
+
+    public String getEventDate() { return eventDate; }
+    public void setEventDate(String eventDate) { this.eventDate = eventDate; }
+
+    public int getEventPrice() { return eventPrice; }
+    public void setEventPrice(int eventPrice) { this.eventPrice = eventPrice; }
+
+    public String getEventLocation() { return eventLocation; }
+    public void setEventLocation(String eventLocation) { this.eventLocation = eventLocation; }
 }
