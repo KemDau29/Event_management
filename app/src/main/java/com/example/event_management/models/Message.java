@@ -26,4 +26,13 @@ public class Message {
 
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+
+    private String eventId;
+    private boolean isEventShare;
+
+    public String getEventId() { return eventId; }
+    public void setEventId(String eventId) { this.eventId = eventId; }
+
+    public boolean isEventShare() { return isEventShare; }
+    public void setEventShare(boolean eventShare) { isEventShare = eventShare; }
 }
