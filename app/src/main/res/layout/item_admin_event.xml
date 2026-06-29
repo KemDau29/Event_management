@@ -98,29 +98,46 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
+                        android:orientation="vertical"
                         android:layout_alignParentStart="true"
                         android:layout_toStartOf="@+id/tvAdminEventPrice"
                         android:layout_marginEnd="8dp">
 
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@android:drawable/ic_dialog_map"
-                            app:tint="#64748B"
-                            android:layout_marginEnd="4dp"
-                            android:contentDescription="Location icon" />
-
-                        <TextView
-                            android:id="@+id/tvAdminEventLocation"
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Địa điểm..."
-                            android:textColor="#64748B"
-                            android:textSize="12sp"
-                            android:maxLines="1"
-                            android:ellipsize="end"/>
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="2dp">
+
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:src="@android:drawable/ic_dialog_map"
+                                app:tint="#64748B"
+                                android:layout_marginEnd="4dp"
+                                android:contentDescription="Location icon" />
+
+                            <TextView
+                                android:id="@+id/tvAdminEventLocation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Địa điểm..."
+                                android:textColor="#64748B"
+                                android:textSize="12sp"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvAdminEventRemaining"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vé: 0"
+                            android:textColor="#F44336"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:visibility="gone"/>
                     </LinearLayout>
 
                     <TextView

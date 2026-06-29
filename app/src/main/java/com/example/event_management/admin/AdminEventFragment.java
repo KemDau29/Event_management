@@ -175,9 +175,16 @@ public class AdminEventFragment extends Fragment {
         EditText edtLng = dialogView.findViewById(R.id.edtAdminEventLng);
         EditText edtPrice = dialogView.findViewById(R.id.edtAdminEventPrice);
         EditText edtRemaining = dialogView.findViewById(R.id.edtAdminEventRemaining);
+        View layoutRemaining = dialogView.findViewById(R.id.layoutAdminEventRemaining);
+        com.google.android.material.switchmaterial.SwitchMaterial switchIsLimited = dialogView.findViewById(R.id.switchIsLimited);
         EditText edtImageUrl = dialogView.findViewById(R.id.edtAdminEventImageUrl);
         TextView tvDate = dialogView.findViewById(R.id.tvAdminEventDate);
         Spinner spinnerCat = dialogView.findViewById(R.id.spinnerAdminEventCategory);
+
+        // Logic toggle limited tickets
+        switchIsLimited.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            layoutRemaining.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        });
 
         // Setup Category Spinner
         List<String> catNames = new ArrayList<>();
@@ -194,7 +201,11 @@ public class AdminEventFragment extends Fragment {
             edtLat.setText(String.valueOf(event.getLatitude()));
             edtLng.setText(String.valueOf(event.getLongitude()));
             edtPrice.setText(String.valueOf(event.getPrice()));
+            
+            switchIsLimited.setChecked(event.isLimited());
+            layoutRemaining.setVisibility(event.isLimited() ? View.VISIBLE : View.GONE);
             edtRemaining.setText(String.valueOf(event.getRemainingTickets()));
+
             edtImageUrl.setText(event.getImageUrl());
             selectedDate = event.getDate();
             if (selectedDate != null) tvDate.setText(sdf.format(selectedDate));
@@ -224,9 +235,10 @@ public class AdminEventFragment extends Fragment {
             String lngStr = edtLng.getText().toString().trim();
             String priceStr = edtPrice.getText().toString().trim();
             String remainStr = edtRemaining.getText().toString().trim();
+            boolean isLimited = switchIsLimited.isChecked();
             String img = edtImageUrl.getText().toString().trim();
 
-            if (title.isEmpty() || desc.isEmpty() || loc.isEmpty() || priceStr.isEmpty() || remainStr.isEmpty() || selectedDate == null || spinnerCat.getSelectedItem() == null) {
+            if (title.isEmpty() || desc.isEmpty() || loc.isEmpty() || priceStr.isEmpty() || (isLimited && remainStr.isEmpty()) || selectedDate == null || spinnerCat.getSelectedItem() == null) {
                 Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -254,7 +266,12 @@ public class AdminEventFragment extends Fragment {
             }
 
             newEvent.setPrice(Integer.parseInt(priceStr));
-            newEvent.setRemainingTickets(Integer.parseInt(remainStr));
+            newEvent.setLimited(isLimited);
+            if (isLimited) {
+                newEvent.setRemainingTickets(Integer.parseInt(remainStr));
+            } else {
+                newEvent.setRemainingTickets(0); // Hoặc giá trị mặc định cho vô hạn
+            }
             newEvent.setImageUrl(img);
             newEvent.setDate(selectedDate);
             

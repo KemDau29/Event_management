@@ -52,6 +52,19 @@ public class AdminEventAdapter extends RecyclerView.Adapter<AdminEventAdapter.Ad
             holder.tvLocation.setText(event.getLocation());
             holder.tvPrice.setText(String.format(Locale.getDefault(), "%,dđ", event.getPrice()));
             
+            if (event.isLimited()) {
+                holder.tvRemaining.setVisibility(View.VISIBLE);
+                if (event.getRemainingTickets() <= 0) {
+                    holder.tvRemaining.setText("HẾT VÉ");
+                    holder.tvRemaining.setTextColor(android.graphics.Color.RED);
+                } else {
+                    holder.tvRemaining.setText("Vé còn: " + event.getRemainingTickets());
+                    holder.tvRemaining.setTextColor(android.graphics.Color.parseColor("#4CAF50")); // Green
+                }
+            } else {
+                holder.tvRemaining.setVisibility(View.GONE);
+            }
+
             if (event.getImageUrl() != null && !event.getImageUrl().isEmpty()) {
                 Glide.with(context).load(event.getImageUrl()).into(holder.img);
             } else {
@@ -70,7 +83,7 @@ public class AdminEventAdapter extends RecyclerView.Adapter<AdminEventAdapter.Ad
     public static class AdminEventViewHolder extends RecyclerView.ViewHolder {
         public ImageView img;
         public MaterialButton btnEdit, btnDelete;
-        public TextView tvName, tvLocation, tvPrice;
+        public TextView tvName, tvLocation, tvPrice, tvRemaining;
         public View cardForeground;
 
         public AdminEventViewHolder(@NonNull View itemView) {
@@ -79,6 +92,7 @@ public class AdminEventAdapter extends RecyclerView.Adapter<AdminEventAdapter.Ad
             tvName = itemView.findViewById(R.id.tvAdminEventName);
             tvLocation = itemView.findViewById(R.id.tvAdminEventLocation);
             tvPrice = itemView.findViewById(R.id.tvAdminEventPrice);
+            tvRemaining = itemView.findViewById(R.id.tvAdminEventRemaining);
             btnEdit = itemView.findViewById(R.id.btnEditEvent);
             btnDelete = itemView.findViewById(R.id.btnDeleteEvent);
             cardForeground = itemView.findViewById(R.id.cardAdminEventForeground);

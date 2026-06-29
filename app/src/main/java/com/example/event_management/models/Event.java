@@ -30,6 +30,7 @@ public class Event implements Serializable {
     private int attendants;
     private String imageUrl; // Thay thế cho imageUrl cũ nếu cần, hoặc dùng song song
     private int remainingTickets;
+    private boolean isLimited;
 
     public Event() {}
 
@@ -66,6 +67,9 @@ public class Event implements Serializable {
 
     public int getRemainingTickets() { return remainingTickets; }
     public void setRemainingTickets(int remainingTickets) { this.remainingTickets = remainingTickets; }
+
+    public boolean isLimited() { return isLimited; }
+    public void setLimited(boolean limited) { isLimited = limited; }
 
     public String getFormattedDate() {
         if (date == null) return "";
