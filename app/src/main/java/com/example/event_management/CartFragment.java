@@ -1,15 +1,5 @@
 package com.example.event_management;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button; // Thêm import
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -17,31 +7,33 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button; 
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
 import com.example.event_management.adapters.CartAdapter;
 import com.example.event_management.helpers.EmailHelper;
 import com.example.event_management.models.CartItem;
 import com.example.event_management.models.Order;
 import com.example.event_management.models.Ticket;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
+
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 
 public class CartFragment extends Fragment {
 
@@ -245,6 +237,17 @@ public class CartFragment extends Fragment {
             batch.delete(db.collection("carts").document(uid)
                     .collection("cart_items").document(item.getCartItemId()));
             
+            // Cập nhật số lượng vé còn lại nếu sự kiện có giới hạn
+            DocumentReference eventRef = db.collection("events").document(item.getEventId());
+            eventRef.get().addOnSuccessListener(doc -> {
+                if (doc.exists()) {
+                    Boolean isLimited = doc.getBoolean("limited"); // Tên field trong Firestore có thể là 'limited' hoặc 'isLimited'
+                    if (isLimited != null && isLimited) {
+                        eventRef.update("remainingTickets", com.google.firebase.firestore.FieldValue.increment(-item.getQuantity()));
+                    }
+                }
+            });
+
             // Tạo đối tượng Ticket
             String ticketId = db.collection("tickets").document().getId();
             Ticket ticket = new Ticket();

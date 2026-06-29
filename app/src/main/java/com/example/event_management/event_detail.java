@@ -205,7 +205,24 @@ public class event_detail extends Fragment {
                     });
 
             if (tvAttendants != null) tvAttendants.setText(String.valueOf(event.getAttendants()));
-            if (tvRemaining != null) tvRemaining.setText(String.valueOf(event.getRemainingTickets()));
+            
+            if (tvRemaining != null) {
+                if (event.isLimited()) {
+                    if (event.getRemainingTickets() <= 0) {
+                        tvRemaining.setText("Hết vé");
+                        tvRemaining.setTextColor(android.graphics.Color.RED);
+                        btnAddToCart.setEnabled(false);
+                        btnAddToCart.setText("ĐÃ HẾT VÉ");
+                        btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                    } else {
+                        tvRemaining.setText(String.valueOf(event.getRemainingTickets()));
+                        tvRemaining.setTextColor(android.graphics.Color.parseColor("#1A1A1A"));
+                    }
+                } else {
+                    tvRemaining.setText("Vô hạn");
+                    tvRemaining.setTextColor(android.graphics.Color.parseColor("#1A1A1A"));
+                }
+            }
 
             // ---- ĐOẠN ĐƯỢC THÊM: Xử lý load ảnh Banner bằng Glide ----
             if (imgBanner != null) {
@@ -224,7 +241,11 @@ public class event_detail extends Fragment {
 
             btnBack.setOnClickListener(v -> {
                 if (getActivity() != null) {
-                    getActivity().getSupportFragmentManager().popBackStack();
+                    if (getActivity().getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                    } else {
+                        getActivity().finish();
+                    }
                 }
             });
 
@@ -606,6 +627,11 @@ public class event_detail extends Fragment {
         message.put("timestamp", System.currentTimeMillis());
         message.put("eventId", event.getId());
         message.put("isEventShare", true);
+        message.put("eventTitle", event.getTitle());
+        message.put("eventImageUrl", event.getImageUrl());
+        message.put("eventDate", event.getFormattedDate());
+        message.put("eventPrice", event.getPrice());
+        message.put("eventLocation", event.getLocation());
 
         db.collection("chats").document(chatId).collection("messages").add(message)
                 .addOnSuccessListener(documentReference -> {

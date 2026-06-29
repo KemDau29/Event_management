@@ -25,6 +25,7 @@ public class MyTicketsFragment extends Fragment {
     private ListView listTickets;
     private TicketAdapter adapter;
     private List<Ticket> ticketList = new ArrayList<>();
+    private com.google.firebase.firestore.ListenerRegistration listenerRegistration;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private String currentStatus = "Đã mua";
@@ -80,14 +81,28 @@ public class MyTicketsFragment extends Fragment {
     }
 
     private void loadTickets() {
+        if (mAuth.getCurrentUser() == null) return;
         String uid = mAuth.getCurrentUser().getUid();
-        
-        db.collection("tickets")
+
+        // 1. Hủy listener cũ nếu đang chạy
+        if (listenerRegistration != null) {
+            listenerRegistration.remove();
+        }
+
+        // 2. Xóa danh sách hiện tại để tránh hiện dữ liệu tab cũ
+        ticketList.clear();
+        adapter.setTicketList(ticketList);
+
+        // 3. Lắng nghe dữ liệu mới cho tab hiện tại
+        listenerRegistration = db.collection("tickets")
                 .whereEqualTo("userId", uid)
                 .whereEqualTo("status", currentStatus)
                 .orderBy("purchaseDate", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
-                    if (error != null) return;
+                    if (error != null) {
+                        android.util.Log.e("TICKETS_ERROR", "Lỗi load vé: " + error.getMessage());
+                        return;
+                    }
                     if (value != null) {
                         ticketList.clear();
                         for (QueryDocumentSnapshot doc : value) {
@@ -96,5 +111,13 @@ public class MyTicketsFragment extends Fragment {
                         adapter.setTicketList(ticketList);
                     }
                 });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (listenerRegistration != null) {
+            listenerRegistration.remove();
+        }
     }
 }
