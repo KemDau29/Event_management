@@ -30,8 +30,17 @@ public class Event implements Serializable {
     private int attendants;
     private String imageUrl; // Thay thế cho imageUrl cũ nếu cần, hoặc dùng song song
     private int remainingTickets;
+    private java.util.List<TicketType> ticketTypes;
 
     public Event() {}
+
+    public java.util.List<TicketType> getTicketTypes() {
+        return ticketTypes;
+    }
+
+    public void setTicketTypes(java.util.List<TicketType> ticketTypes) {
+        this.ticketTypes = ticketTypes;
+    }
 
     public double getLatitude() { return latitude; }
     public void setLatitude(double latitude) { this.latitude = latitude; }

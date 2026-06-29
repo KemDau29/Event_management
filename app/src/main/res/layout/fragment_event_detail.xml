@@ -213,6 +213,21 @@
                     android:textColor="#1A1A1A"
                     android:layout_marginBottom="24dp"/>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Loại vé"
+                    android:textStyle="bold"
+                    android:textColor="#888888"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvTicketTypes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"/>
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"

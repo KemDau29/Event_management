@@ -45,7 +45,7 @@ import android.widget.EditText;
 
 public class CartFragment extends Fragment {
 
-    private TextView tvTotalCartPrice, tvSubtotal, tvDiscountAmount;
+    private TextView tvTotalCartPrice, tvSubtotal, tvDiscountAmount, btnDeleteSelected;
     private EditText edtCoupon;
     private Button btnCheckout, btnApplyCoupon;
     private View layoutDiscount;
@@ -72,6 +72,7 @@ public class CartFragment extends Fragment {
         edtCoupon = view.findViewById(R.id.edtCoupon);
         btnApplyCoupon = view.findViewById(R.id.btnApplyCoupon);
         btnCheckout = view.findViewById(R.id.btnCheckout);
+        btnDeleteSelected = view.findViewById(R.id.btnDeleteSelected);
 
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -107,6 +108,8 @@ public class CartFragment extends Fragment {
                 calculateTotalPrice();
             });
         });
+
+        btnDeleteSelected.setOnClickListener(v -> deleteSelectedItems());
 
         btnCheckout.setOnClickListener(v -> {
             List<CartItem> chosenItems = new ArrayList<>();
@@ -240,7 +243,7 @@ public class CartFragment extends Fragment {
         // 2. Xóa giỏ hàng và 3. Tạo vé riêng lẻ
         for (CartItem item : chosenItems) {
             batch.delete(db.collection("carts").document(uid)
-                    .collection("cart_items").document(item.getEventId()));
+                    .collection("cart_items").document(item.getCartItemId()));
             
             // Tạo đối tượng Ticket
             String ticketId = db.collection("tickets").document().getId();
@@ -257,6 +260,7 @@ public class CartFragment extends Fragment {
             ticket.setLocation(item.getLocation());
             ticket.setImgUrl(item.getImageUrl());
             ticket.setQuantity(item.getQuantity());
+            ticket.setTicketType(item.getTicketType());
             ticket.setStatus("Đã mua");
             ticket.setConfirmCode(item.getConfirmCode());
             
@@ -308,12 +312,43 @@ public class CartFragment extends Fragment {
                         cartItemList.clear();
                         for (QueryDocumentSnapshot doc : value) {
                             CartItem item = doc.toObject(CartItem.class);
+                            item.setCartItemId(doc.getId());
                             cartItemList.add(item);
                         }
                         adapter.setCartItemList(cartItemList);
                         calculateTotalPrice();
                     }
                 });
+    }
+
+    private void deleteSelectedItems() {
+        if (mAuth.getCurrentUser() == null) return;
+
+        List<CartItem> itemsToDelete = new ArrayList<>();
+        for (CartItem item : cartItemList) {
+            if (item.isChosen()) {
+                itemsToDelete.add(item);
+            }
+        }
+
+        if (itemsToDelete.isEmpty()) return;
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Xóa mục đã chọn")
+                .setMessage("Bạn có chắc chắn muốn xóa " + itemsToDelete.size() + " mục đã chọn khỏi giỏ hàng?")
+                .setPositiveButton("Xóa", (dialog, which) -> {
+                    String uid = mAuth.getCurrentUser().getUid();
+                    WriteBatch batch = db.batch();
+                    for (CartItem item : itemsToDelete) {
+                        batch.delete(db.collection("carts").document(uid)
+                                .collection("cart_items").document(item.getCartItemId()));
+                    }
+                    batch.commit().addOnSuccessListener(aVoid -> {
+                        Toast.makeText(getContext(), "Đã xóa các mục đã chọn", Toast.LENGTH_SHORT).show();
+                    });
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
     }
 
     private void calculateTotalPrice() {
@@ -337,9 +372,11 @@ public class CartFragment extends Fragment {
         if (hasChosenItem) {
             btnCheckout.setEnabled(true);
             btnCheckout.setAlpha(1.0f);
+            btnDeleteSelected.setVisibility(View.VISIBLE);
         } else {
             btnCheckout.setEnabled(false);
             btnCheckout.setAlpha(0.5f);
+            btnDeleteSelected.setVisibility(View.GONE);
         }
     }
 }
