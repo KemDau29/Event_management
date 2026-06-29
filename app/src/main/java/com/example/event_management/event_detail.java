@@ -16,8 +16,10 @@ import androidx.fragment.app.Fragment;
 // Thêm import thư viện Glide
 import com.bumptech.glide.Glide;
 import com.example.event_management.adapters.CommentAdapter;
+import com.example.event_management.adapters.TicketTypeAdapter;
 import com.example.event_management.models.Comment;
 import com.example.event_management.models.Event;
+import com.example.event_management.models.TicketType;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -47,6 +49,9 @@ public class event_detail extends Fragment {
     private FirebaseAuth mAuth;
     private ImageView btnWishlist;
     private boolean isFavorite = false;
+    private RecyclerView rvTicketTypes;
+    private TicketTypeAdapter ticketTypeAdapter;
+    private List<TicketType> ticketTypesList = new ArrayList<>();
 
     // Các biến cho Comment
     private LinearLayout layoutCommentsList;
@@ -102,6 +107,12 @@ public class event_detail extends Fragment {
 
             btnSendComment.setOnClickListener(v -> sendComment());
 
+            // Ticket Types RecyclerView
+            rvTicketTypes = view.findViewById(R.id.rvTicketTypes);
+            rvTicketTypes.setLayoutManager(new LinearLayoutManager(getContext()));
+            ticketTypeAdapter = new TicketTypeAdapter(ticketTypesList);
+            rvTicketTypes.setAdapter(ticketTypeAdapter);
+
             // Các View cho field mới
             TextView tvAttendants = view.findViewById(R.id.tvDetailAttendants);
             TextView tvRemaining = view.findViewById(R.id.tvDetailRemaining);
@@ -150,6 +161,24 @@ public class event_detail extends Fragment {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult() != null) {
                             DocumentSnapshot doc = task.getResult();
+
+                            // Load Ticket Types
+                            ticketTypesList.clear();
+                            List<HashMap<String, Object>> types = (List<HashMap<String, Object>>) doc.get("ticketTypes");
+                            if (types != null && !types.isEmpty()) {
+                                for (HashMap<String, Object> t : types) {
+                                    TicketType tt = new TicketType();
+                                    tt.setName((String) t.get("name"));
+                                    tt.setPrice(((Long) t.get("price")).intValue());
+                                    tt.setDescription((String) t.get("description"));
+                                    ticketTypesList.add(tt);
+                                }
+                            } else {
+                                // Default types if none exist
+                                ticketTypesList.add(new TicketType("Phổ thông", event.getPrice(), "Vé tham gia cơ bản"));
+                                ticketTypesList.add(new TicketType("VIP", event.getPrice() * 2, "Vị trí ưu tiên, quà tặng kèm"));
+                            }
+                            ticketTypeAdapter.notifyDataSetChanged();
 
                             // Kiểm tra xem trường có tồn tại không
                             if (doc.contains("cate")) {
@@ -379,29 +408,94 @@ public class event_detail extends Fragment {
             return;
         }
 
+        showAddToCartDialog();
+    }
+
+    private int selectedQuantity = 1;
+    private TicketType selectedTicketType;
+
+    private void showAddToCartDialog() {
+        BottomSheetDialog dialog = new BottomSheetDialog(getContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_to_cart, null);
+        dialog.setContentView(dialogView);
+
+        android.widget.Spinner spinner = dialogView.findViewById(R.id.spinnerTicketType);
+        TextView tvPrice = dialogView.findViewById(R.id.tvSelectedTicketPrice);
+        TextView tvQuantity = dialogView.findViewById(R.id.tvQuantity);
+        Button btnMinus = dialogView.findViewById(R.id.btnMinus);
+        Button btnPlus = dialogView.findViewById(R.id.btnPlus);
+        Button btnConfirm = dialogView.findViewById(R.id.btnConfirmAdd);
+
+        List<String> typeNames = new ArrayList<>();
+        for (TicketType tt : ticketTypesList) {
+            typeNames.add(tt.getName() + " - " + String.format("%,dđ", tt.getPrice()));
+        }
+
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, typeNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        selectedQuantity = 1;
+        selectedTicketType = ticketTypesList.get(0);
+        tvPrice.setText(String.format("Giá: %,dđ", selectedTicketType.getPrice()));
+
+        spinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                selectedTicketType = ticketTypesList.get(position);
+                tvPrice.setText(String.format("Giá: %,dđ", selectedTicketType.getPrice() * selectedQuantity));
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+
+        btnMinus.setOnClickListener(v -> {
+            if (selectedQuantity > 1) {
+                selectedQuantity--;
+                tvQuantity.setText(String.valueOf(selectedQuantity));
+                tvPrice.setText(String.format("Giá: %,dđ", selectedTicketType.getPrice() * selectedQuantity));
+            }
+        });
+
+        btnPlus.setOnClickListener(v -> {
+            selectedQuantity++;
+            tvQuantity.setText(String.valueOf(selectedQuantity));
+            tvPrice.setText(String.format("Giá: %,dđ", selectedTicketType.getPrice() * selectedQuantity));
+        });
+
+        btnConfirm.setOnClickListener(v -> {
+            performAddToCart(dialog);
+        });
+
+        dialog.show();
+    }
+
+    private void performAddToCart(BottomSheetDialog dialog) {
         String uid = mAuth.getCurrentUser().getUid();
         String eventId = event.getId();
 
-        if (eventId == null) {
-            Toast.makeText(getContext(), "Lỗi: Không tìm thấy ID sự kiện", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         Map<String, Object> cartItem = new HashMap<>();
         cartItem.put("eventId", eventId);
-        cartItem.put("title", event.getTitle());
-        cartItem.put("price", event.getPrice());
+        cartItem.put("title", event.getTitle() + " (" + selectedTicketType.getName() + ")");
+        cartItem.put("price", selectedTicketType.getPrice());
         cartItem.put("date", event.getDate());
         cartItem.put("location", event.getLocation());
         cartItem.put("imgUrl", event.getImageUrl());
-        cartItem.put("quantity", 1);
+        cartItem.put("quantity", selectedQuantity);
+        cartItem.put("ticketType", selectedTicketType.getName());
+        cartItem.put("ticketDescription", selectedTicketType.getDescription());
         cartItem.put("isChosen", true);
 
+        // Use a unique ID for cart items that includes the ticket type to allow different types of the same event in cart
+        String cartItemId = eventId + "_" + selectedTicketType.getName();
+
         db.collection("carts").document(uid)
-                .collection("cart_items").document(eventId)
+                .collection("cart_items").document(cartItemId)
                 .set(cartItem)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Lỗi khi thêm vào giỏ hàng: " + e.getMessage(), Toast.LENGTH_SHORT).show();

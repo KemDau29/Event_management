@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/card_background"
+    android:backgroundTint="#F8F9FA">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvTicketName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phổ thông"
+            android:textStyle="bold"
+            android:textColor="#1A1A1A"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/tvTicketPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="100.000đ"
+            android:textStyle="bold"
+            android:textColor="#185FA5"
+            android:textSize="16sp"/>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tvTicketDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Mô tả cho loại vé này..."
+        android:textColor="#666666"
+        android:textSize="13sp"/>
+
+</LinearLayout>

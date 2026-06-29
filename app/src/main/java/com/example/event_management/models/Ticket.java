@@ -16,6 +16,7 @@ public class Ticket implements Serializable {
     private String location;
     private String imgUrl;
     private int quantity;
+    private String ticketType;
     private String status; // "Đã mua", "Đã bán", "Đã hủy"
     private String confirmCode;
     private String recipientUsername; // Lưu username người nhận nếu đã chuyển
@@ -58,6 +59,9 @@ public class Ticket implements Serializable {
 
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
+
+    public String getTicketType() { return ticketType; }
+    public void setTicketType(String ticketType) { this.ticketType = ticketType; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
