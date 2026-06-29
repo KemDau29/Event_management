@@ -17,9 +17,11 @@ import androidx.fragment.app.Fragment;
 import com.bumptech.glide.Glide;
 import com.example.event_management.adapters.CommentAdapter;
 import com.example.event_management.adapters.TicketTypeAdapter;
+import com.example.event_management.adapters.TimelineAdapter;
 import com.example.event_management.models.Comment;
 import com.example.event_management.models.Event;
 import com.example.event_management.models.TicketType;
+import com.example.event_management.models.TimelineItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -52,6 +54,9 @@ public class event_detail extends Fragment {
     private RecyclerView rvTicketTypes;
     private TicketTypeAdapter ticketTypeAdapter;
     private List<TicketType> ticketTypesList = new ArrayList<>();
+    private RecyclerView rvTimeline;
+    private TimelineAdapter timelineAdapter;
+    private List<TimelineItem> timelineList = new ArrayList<>();
 
     // Các biến cho Comment
     private LinearLayout layoutCommentsList;
@@ -97,6 +102,7 @@ public class event_detail extends Fragment {
             TextView tvDate = view.findViewById(R.id.tvDetailDate);
             TextView tvLocation = view.findViewById(R.id.tvDetailLocation);
             TextView tvDesc = view.findViewById(R.id.tvDetailDesc);
+            TextView tvTimeRange = view.findViewById(R.id.tvDetailTimeRange);
 
             // Ánh xạ các View cho Comment
             layoutCommentsList = view.findViewById(R.id.layoutCommentsList);
@@ -112,6 +118,11 @@ public class event_detail extends Fragment {
             rvTicketTypes.setLayoutManager(new LinearLayoutManager(getContext()));
             ticketTypeAdapter = new TicketTypeAdapter(ticketTypesList);
             rvTicketTypes.setAdapter(ticketTypeAdapter);
+
+            rvTimeline = view.findViewById(R.id.rvTimeline);
+            rvTimeline.setLayoutManager(new LinearLayoutManager(getContext()));
+            timelineAdapter = new TimelineAdapter(timelineList);
+            rvTimeline.setAdapter(timelineAdapter);
 
             // Các View cho field mới
             TextView tvAttendants = view.findViewById(R.id.tvDetailAttendants);
@@ -179,6 +190,47 @@ public class event_detail extends Fragment {
                                 ticketTypesList.add(new TicketType("VIP", event.getPrice() * 2, "Vị trí ưu tiên, quà tặng kèm"));
                             }
                             ticketTypeAdapter.notifyDataSetChanged();
+
+                            // Load Timeline
+                            timelineList.clear();
+                            java.text.SimpleDateFormat sdfTime = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
+                            
+                            if (doc.contains("startTime") && doc.contains("endTime")) {
+                                java.util.Date start = doc.getDate("startTime");
+                                java.util.Date end = doc.getDate("endTime");
+                                if (start != null && end != null) {
+                                    tvTimeRange.setText("🕒 " + sdfTime.format(start) + " - " + sdfTime.format(end));
+                                    tvTimeRange.setVisibility(View.VISIBLE);
+                                }
+                            }
+
+                            List<HashMap<String, Object>> timelineData = (List<HashMap<String, Object>>) doc.get("timeline");
+                            if (timelineData != null && !timelineData.isEmpty()) {
+                                for (HashMap<String, Object> item : timelineData) {
+                                    TimelineItem ti = new TimelineItem();
+                                    
+                                    Object startObj = item.get("startTime");
+                                    if (startObj instanceof com.google.firebase.Timestamp) {
+                                        ti.setStartTime(((com.google.firebase.Timestamp) startObj).toDate());
+                                    } else if (startObj instanceof java.util.Date) {
+                                        ti.setStartTime((java.util.Date) startObj);
+                                    }
+
+                                    Object endObj = item.get("endTime");
+                                    if (endObj instanceof com.google.firebase.Timestamp) {
+                                        ti.setEndTime(((com.google.firebase.Timestamp) endObj).toDate());
+                                    } else if (endObj instanceof java.util.Date) {
+                                        ti.setEndTime((java.util.Date) endObj);
+                                    }
+
+                                    ti.setActivity((String) item.get("activity"));
+                                    timelineList.add(ti);
+                                }
+                            } else {
+                                // Default timeline logic with current date if needed
+                                // (Bạn có thể bỏ phần này nếu database của bạn đã chuẩn)
+                            }
+                            timelineAdapter.notifyDataSetChanged();
 
                             // Kiểm tra xem trường có tồn tại không
                             if (doc.contains("cate")) {
@@ -480,6 +532,8 @@ public class event_detail extends Fragment {
         cartItem.put("title", event.getTitle() + " (" + selectedTicketType.getName() + ")");
         cartItem.put("price", selectedTicketType.getPrice());
         cartItem.put("date", event.getDate());
+        cartItem.put("startTime", event.getStartTime());
+        cartItem.put("endTime", event.getEndTime());
         cartItem.put("location", event.getLocation());
         cartItem.put("imgUrl", event.getImageUrl());
         cartItem.put("quantity", selectedQuantity);

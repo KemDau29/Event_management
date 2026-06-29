@@ -12,6 +12,8 @@ public class CartItem implements Serializable {
     private String title;
     private int price;
     private Date date;
+    private Date startTime;
+    private Date endTime;
     private String location;
     private String imgUrl;
     private int quantity;
@@ -53,6 +55,12 @@ public class CartItem implements Serializable {
 
     public Date getDate() { return date; }
     public void setDate(Date date) { this.date = date; }
+
+    public Date getStartTime() { return startTime; }
+    public void setStartTime(Date startTime) { this.startTime = startTime; }
+
+    public Date getEndTime() { return endTime; }
+    public void setEndTime(Date endTime) { this.endTime = endTime; }
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }

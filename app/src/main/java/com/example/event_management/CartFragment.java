@@ -259,6 +259,8 @@ public class CartFragment extends Fragment {
             ticket.setTitle(item.getTitle());
             ticket.setPrice(item.getPrice());
             ticket.setEventDate(item.getDate());
+            ticket.setStartTime(item.getStartTime());
+            ticket.setEndTime(item.getEndTime());
             ticket.setPurchaseDate(new Date());
             ticket.setLocation(item.getLocation());
             ticket.setImgUrl(item.getImageUrl());
