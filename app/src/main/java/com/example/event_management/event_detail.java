@@ -239,6 +239,8 @@ public class event_detail extends Fragment {
 
                             // Load Registration Period & Announcement
                             SimpleDateFormat sdfPretty = new SimpleDateFormat("dd MMMM yyyy", Locale.US);
+                            SimpleDateFormat sdfFull = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                            
                             if (doc.contains("ticketOpenDate") && doc.contains("ticketCloseDate")) {
                                 Date open = doc.getDate("ticketOpenDate");
                                 Date close = doc.getDate("ticketCloseDate");
@@ -246,6 +248,11 @@ public class event_detail extends Fragment {
                                     cardTicketOpen.setVisibility(View.VISIBLE);
                                     tvRegPeriod.setText(sdfPretty.format(open) + " - " + sdfPretty.format(close));
                                     
+                                    // Set formatted deadline info with countdown
+                                    String timeRemaining = getTimeRemaining(close);
+                                    tvDeadline.setText("Đăng ký đến ngày: " + sdfFull.format(close) + " - " + timeRemaining);
+                                    tvDeadline.setVisibility(View.VISIBLE);
+
                                     Date now = new Date();
                                     if (now.before(open)) {
                                         btnAddToCart.setEnabled(false);
@@ -257,6 +264,7 @@ public class event_detail extends Fragment {
                                         btnAddToCart.setText("HẾT HẠN ĐĂNG KÝ");
                                         btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
                                         tvRegPeriod.setTextColor(android.graphics.Color.RED);
+                                        tvDeadline.setText("Hết hạn đăng ký: " + sdfFull.format(close));
                                     } else {
                                         // Đang trong thời gian đăng ký
                                         btnAddToCart.setEnabled(true);
@@ -264,6 +272,10 @@ public class event_detail extends Fragment {
                                         btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#185FA5")));
                                     }
                                 }
+                            }
+                            
+                            if (event.getDate() != null) {
+                                tvDate.setText("Sự kiện diễn ra vào ngày " + sdfFull.format(event.getDate()));
                             }
 
                             if (doc.contains("announcementDate")) {
@@ -740,5 +752,21 @@ public class event_detail extends Fragment {
 
     private String getChatId(String id1, String id2) {
         return id1.compareTo(id2) < 0 ? id1 + "_" + id2 : id2 + "_" + id1;
+    }
+
+    private String getTimeRemaining(Date closeDate) {
+        long diff = closeDate.getTime() - new Date().getTime();
+        if (diff <= 0) return "Hết hạn";
+
+        long days = diff / (24 * 60 * 60 * 1000);
+        long hours = (diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000);
+        long minutes = (diff % (60 * 60 * 1000)) / (60 * 1000);
+
+        StringBuilder sb = new StringBuilder("Còn ");
+        if (days > 0) sb.append(days).append("d");
+        if (hours > 0) sb.append(hours).append("h");
+        sb.append(minutes).append("m");
+
+        return sb.toString();
     }
 }
