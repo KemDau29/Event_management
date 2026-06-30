@@ -111,7 +111,7 @@
                             android:id="@+id/tvDetailAnnouncementDate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="24 tháng 06, 2026"
+                            android:text="-- tháng --, ----"
                             android:textColor="#F43F5E"
                             android:textSize="20sp"
                             android:textStyle="bold"/>

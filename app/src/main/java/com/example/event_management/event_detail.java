@@ -294,14 +294,8 @@ public class event_detail extends Fragment {
                             }
                             
                             if (event.getDate() != null) {
+                                tvAnnounce.setText(sdfPretty.format(event.getDate()));
                                 tvDate.setText("Sự kiện diễn ra vào ngày " + sdfFull.format(event.getDate()));
-                            }
-
-                            if (doc.contains("announcementDate")) {
-                                Date announce = doc.getDate("announcementDate");
-                                if (announce != null) {
-                                    tvAnnounce.setText(sdfPretty.format(announce));
-                                }
                             }
 
                             // Kiểm tra xem trường có tồn tại không
