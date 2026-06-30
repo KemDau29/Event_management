@@ -238,7 +238,7 @@ public class event_detail extends Fragment {
                             timelineAdapter.notifyDataSetChanged();
 
                             // Load Registration Period & Announcement
-                            SimpleDateFormat sdfPretty = new SimpleDateFormat("dd MMMM yyyy", Locale.US);
+                            SimpleDateFormat sdfPretty = new SimpleDateFormat("dd 'tháng' MM, yyyy", new Locale("vi", "VN"));
                             SimpleDateFormat sdfFull = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                             
                             Date openDate = null;
@@ -781,9 +781,9 @@ public class event_detail extends Fragment {
         long minutes = (diff % (60 * 60 * 1000)) / (60 * 1000);
 
         StringBuilder sb = new StringBuilder("Còn ");
-        if (days > 0) sb.append(days).append("d");
-        if (hours > 0) sb.append(hours).append("h");
-        sb.append(minutes).append("m");
+        if (days > 0) sb.append(days).append(" ngày ");
+        if (hours > 0) sb.append(hours).append(" giờ ");
+        sb.append(minutes).append(" phút");
 
         return sb.toString();
     }

@@ -67,9 +67,9 @@ public class FeaturedEventAdapter extends RecyclerView.Adapter<FeaturedEventAdap
                     long minutes = (diff % (60 * 60 * 1000)) / (60 * 1000);
                     
                     StringBuilder timeRem = new StringBuilder("Còn ");
-                    if (days > 0) timeRem.append(days).append("d");
-                    if (hours > 0) timeRem.append(hours).append("h");
-                    timeRem.append(minutes).append("m");
+                    if (days > 0) timeRem.append(days).append(" ngày ");
+                    if (hours > 0) timeRem.append(hours).append(" giờ ");
+                    timeRem.append(minutes).append(" phút");
                     
                     deadlineInfo = "Đăng ký mua vé đến: " + sdfFull.format(event.getTicketCloseDate()) + " - " + timeRem;
                     holder.tvRegDeadlineText.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F43F5E")));

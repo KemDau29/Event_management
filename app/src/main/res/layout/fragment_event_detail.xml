@@ -74,7 +74,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="TICKET OPEN"
+                            android:text="THỜI HẠN ĐĂNG KÝ"
                             android:textColor="#F43F5E"
                             android:textSize="22sp"
                             android:textStyle="bold"
@@ -84,7 +84,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Registration Period"
+                            android:text="Thời gian nhận đăng ký"
                             android:textColor="#888888"
                             android:textSize="12sp"
                             android:layout_marginBottom="4dp"/>
@@ -93,7 +93,7 @@
                             android:id="@+id/tvDetailRegistrationPeriod"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="19 - 22 June 2026"
+                            android:text="19 - 22 Tháng 06, 2026"
                             android:textColor="#F43F5E"
                             android:textSize="20sp"
                             android:textStyle="bold"
@@ -102,7 +102,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Ticket Winners Announcement"
+                            android:text="Ngày công bố kết quả dự kiến"
                             android:textColor="#888888"
                             android:textSize="12sp"
                             android:layout_marginBottom="4dp"/>

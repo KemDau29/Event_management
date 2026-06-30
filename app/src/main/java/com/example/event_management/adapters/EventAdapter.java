@@ -89,9 +89,9 @@ public class EventAdapter extends BaseAdapter {
                     long minutes = (diff % (60 * 60 * 1000)) / (60 * 1000);
                     
                     StringBuilder timeRem = new StringBuilder("Còn ");
-                    if (days > 0) timeRem.append(days).append("d");
-                    if (hours > 0) timeRem.append(hours).append("h");
-                    timeRem.append(minutes).append("m");
+                    if (days > 0) timeRem.append(days).append(" ngày ");
+                    if (hours > 0) timeRem.append(hours).append(" giờ ");
+                    timeRem.append(minutes).append(" phút");
                     
                     deadlineInfo = "Đăng ký mua vé đến ngày: " + sdfFull.format(event.getTicketCloseDate()) + " - " + timeRem;
                     holder.tvRegDeadlineText.setTextColor(android.graphics.Color.parseColor("#F43F5E"));
