@@ -60,7 +60,7 @@ public class FeaturedEventAdapter extends RecyclerView.Adapter<FeaturedEventAdap
                 
                 if (diff <= 0) {
                     deadlineInfo = "Hết hạn đăng ký: " + sdfFull.format(event.getTicketCloseDate());
-                    holder.tvRegDeadlineText.setTextColor(android.graphics.Color.GRAY);
+                    holder.tvRegDeadlineText.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
                 } else {
                     long days = diff / (24 * 60 * 60 * 1000);
                     long hours = (diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000);
@@ -71,8 +71,8 @@ public class FeaturedEventAdapter extends RecyclerView.Adapter<FeaturedEventAdap
                     if (hours > 0) timeRem.append(hours).append("h");
                     timeRem.append(minutes).append("m");
                     
-                    deadlineInfo = "Đăng ký mua vé đến ngày: " + sdfFull.format(event.getTicketCloseDate()) + " - " + timeRem;
-                    holder.tvRegDeadlineText.setTextColor(android.graphics.Color.parseColor("#F43F5E"));
+                    deadlineInfo = "Đăng ký mua vé đến: " + sdfFull.format(event.getTicketCloseDate()) + " - " + timeRem;
+                    holder.tvRegDeadlineText.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F43F5E")));
                 }
                 holder.tvRegDeadlineText.setText(deadlineInfo);
                 if (holder.tvRegDeadline != null) holder.tvRegDeadline.setVisibility(View.GONE);

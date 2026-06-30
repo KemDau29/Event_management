@@ -58,14 +58,14 @@ public class UpcomingEventAdapter extends RecyclerView.Adapter<UpcomingEventAdap
             // Xử lý hiển thị thời hạn đăng ký
             if (event.getTicketCloseDate() != null) {
                 holder.tvUpcomingRegDeadline.setVisibility(View.VISIBLE);
-                java.text.SimpleDateFormat sdfFull = new java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.getDefault());
+                java.text.SimpleDateFormat sdfFull = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault());
                 
                 long diff = event.getTicketCloseDate().getTime() - new java.util.Date().getTime();
                 String deadlineInfo;
                 
                 if (diff <= 0) {
                     deadlineInfo = "Hết hạn đăng ký: " + sdfFull.format(event.getTicketCloseDate());
-                    holder.tvUpcomingRegDeadline.setTextColor(android.graphics.Color.GRAY);
+                    holder.tvUpcomingRegDeadline.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
                 } else {
                     long days = diff / (24 * 60 * 60 * 1000);
                     long hours = (diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000);
@@ -77,7 +77,7 @@ public class UpcomingEventAdapter extends RecyclerView.Adapter<UpcomingEventAdap
                     timeRem.append(minutes).append("m");
                     
                     deadlineInfo = "Đăng ký mua vé đến ngày: " + sdfFull.format(event.getTicketCloseDate()) + " - " + timeRem;
-                    holder.tvUpcomingRegDeadline.setTextColor(android.graphics.Color.parseColor("#F43F5E"));
+                    holder.tvUpcomingRegDeadline.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F43F5E")));
                 }
                 holder.tvUpcomingRegDeadline.setText(deadlineInfo);
             } else {

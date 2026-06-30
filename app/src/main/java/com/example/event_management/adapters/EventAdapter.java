@@ -54,6 +54,7 @@ public class EventAdapter extends BaseAdapter {
             holder.tvSoldOutLabel = convertView.findViewById(R.id.tvSoldOutLabel);
             holder.tvRegDeadlineLabel = convertView.findViewById(R.id.tvRegDeadlineLabel);
             holder.tvRegDeadlineText = convertView.findViewById(R.id.tvRegDeadlineText);
+            holder.layoutDeadline = convertView.findViewById(R.id.layoutDeadline);
 
             // Gắn chiếc rổ này vào convertView để lần sau dùng lại
             convertView.setTag(holder); //
@@ -72,6 +73,7 @@ public class EventAdapter extends BaseAdapter {
 
             // Xử lý hiển thị thời hạn đăng ký
             if (event.getTicketCloseDate() != null) {
+                if (holder.layoutDeadline != null) holder.layoutDeadline.setVisibility(View.VISIBLE);
                 holder.tvRegDeadlineText.setVisibility(View.VISIBLE);
                 java.text.SimpleDateFormat sdfFull = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault());
                 
@@ -96,10 +98,9 @@ public class EventAdapter extends BaseAdapter {
                 }
                 
                 holder.tvRegDeadlineText.setText(deadlineInfo);
-                
-                // Old label still used for visual badge if preferred, or hide it
                 if (holder.tvRegDeadlineLabel != null) holder.tvRegDeadlineLabel.setVisibility(View.GONE);
             } else {
+                if (holder.layoutDeadline != null) holder.layoutDeadline.setVisibility(View.GONE);
                 holder.tvRegDeadlineText.setVisibility(View.GONE);
             }
 
@@ -141,5 +142,6 @@ public class EventAdapter extends BaseAdapter {
         TextView tvSoldOutLabel;
         TextView tvRegDeadlineLabel;
         TextView tvRegDeadlineText;
+        View layoutDeadline;
     }
 }

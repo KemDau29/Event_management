@@ -81,11 +81,15 @@
                 android:id="@+id/tvFeaturedRegDeadlineText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
-                android:textColor="#F43F5E"
-                android:layout_marginBottom="4dp"
-                android:text="Đăng ký đến: --/--/----"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/bg_category_active"
+                android:backgroundTint="#F43F5E"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:layout_marginBottom="6dp"
+                android:text="Đăng ký mua vé đến: --/--/---- - Còn ?h?m"
                 android:visibility="gone"/>
 
             <TextView
