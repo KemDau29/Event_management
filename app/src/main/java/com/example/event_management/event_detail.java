@@ -104,6 +104,10 @@ public class event_detail extends Fragment {
             TextView tvDesc = view.findViewById(R.id.tvDetailDesc);
             TextView tvTimeRange = view.findViewById(R.id.tvDetailTimeRange);
             TextView tvDeadline = view.findViewById(R.id.tvRegistrationDeadline);
+            
+            View cardTicketOpen = view.findViewById(R.id.cardTicketOpenInfo);
+            TextView tvRegPeriod = view.findViewById(R.id.tvDetailRegistrationPeriod);
+            TextView tvAnnounce = view.findViewById(R.id.tvDetailAnnouncementDate);
 
             // Ánh xạ các View cho Comment
             layoutCommentsList = view.findViewById(R.id.layoutCommentsList);
@@ -233,20 +237,32 @@ public class event_detail extends Fragment {
                             }
                             timelineAdapter.notifyDataSetChanged();
 
-                            // Load Registration Deadline
-                            if (doc.contains("registrationDeadline")) {
-                                Date deadline = doc.getDate("registrationDeadline");
-                                if (deadline != null) {
-                                    SimpleDateFormat sdfDeadline = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                                    tvDeadline.setText("⏰ Hạn đăng ký: " + sdfDeadline.format(deadline));
-                                    tvDeadline.setVisibility(View.VISIBLE);
-
-                                    if (new Date().after(deadline)) {
+                            // Load Registration Period & Announcement
+                            SimpleDateFormat sdfPretty = new SimpleDateFormat("dd MMMM yyyy", Locale.US);
+                            if (doc.contains("ticketOpenDate") && doc.contains("ticketCloseDate")) {
+                                Date open = doc.getDate("ticketOpenDate");
+                                Date close = doc.getDate("ticketCloseDate");
+                                if (open != null && close != null) {
+                                    cardTicketOpen.setVisibility(View.VISIBLE);
+                                    tvRegPeriod.setText(sdfPretty.format(open) + " - " + sdfPretty.format(close));
+                                    
+                                    Date now = new Date();
+                                    if (now.before(open)) {
+                                        btnAddToCart.setEnabled(false);
+                                        btnAddToCart.setText("CHƯA ĐẾN HẠN ĐĂNG KÝ");
+                                        btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                                    } else if (now.after(close)) {
                                         btnAddToCart.setEnabled(false);
                                         btnAddToCart.setText("HẾT HẠN ĐĂNG KÝ");
                                         btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
-                                        tvDeadline.setTextColor(android.graphics.Color.RED);
                                     }
+                                }
+                            }
+
+                            if (doc.contains("announcementDate")) {
+                                Date announce = doc.getDate("announcementDate");
+                                if (announce != null) {
+                                    tvAnnounce.setText(sdfPretty.format(announce));
                                 }
                             }
 

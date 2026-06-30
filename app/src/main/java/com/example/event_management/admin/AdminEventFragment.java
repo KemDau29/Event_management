@@ -62,7 +62,9 @@ public class AdminEventFragment extends Fragment {
     private FirebaseFirestore db;
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
     private Date selectedDate;
-    private Date selectedDeadline;
+    private Date selectedOpenDate;
+    private Date selectedCloseDate;
+    private Date selectedAnnouncementDate;
 
     @Nullable
     @Override
@@ -180,7 +182,9 @@ public class AdminEventFragment extends Fragment {
         com.google.android.material.switchmaterial.SwitchMaterial switchIsLimited = dialogView.findViewById(R.id.switchIsLimited);
         EditText edtImageUrl = dialogView.findViewById(R.id.edtAdminEventImageUrl);
         TextView tvDate = dialogView.findViewById(R.id.tvAdminEventDate);
-        TextView tvDeadline = dialogView.findViewById(R.id.tvAdminRegistrationDeadline);
+        TextView tvOpen = dialogView.findViewById(R.id.tvAdminTicketOpen);
+        TextView tvClose = dialogView.findViewById(R.id.tvAdminTicketClose);
+        TextView tvAnnouncement = dialogView.findViewById(R.id.tvAdminAnnouncementDate);
         Spinner spinnerCat = dialogView.findViewById(R.id.spinnerAdminEventCategory);
 
         // Logic toggle limited tickets
@@ -212,8 +216,14 @@ public class AdminEventFragment extends Fragment {
             selectedDate = event.getDate();
             if (selectedDate != null) tvDate.setText(sdf.format(selectedDate));
             
-            selectedDeadline = event.getRegistrationDeadline();
-            if (selectedDeadline != null) tvDeadline.setText(sdf.format(selectedDeadline));
+            selectedOpenDate = event.getTicketOpenDate();
+            if (selectedOpenDate != null) tvOpen.setText(sdf.format(selectedOpenDate));
+            
+            selectedCloseDate = event.getTicketCloseDate();
+            if (selectedCloseDate != null) tvClose.setText(sdf.format(selectedCloseDate));
+            
+            selectedAnnouncementDate = event.getAnnouncementDate();
+            if (selectedAnnouncementDate != null) tvAnnouncement.setText(sdf.format(selectedAnnouncementDate));
 
             // Set selection for category
             if (event.getCate() != null) {
@@ -227,11 +237,15 @@ public class AdminEventFragment extends Fragment {
         } else {
             tvTitle.setText("Thêm mới sự kiện");
             selectedDate = null;
-            selectedDeadline = null;
+            selectedOpenDate = null;
+            selectedCloseDate = null;
+            selectedAnnouncementDate = null;
         }
 
-        tvDate.setOnClickListener(v -> showDateTimePicker(tvDate, true));
-        tvDeadline.setOnClickListener(v -> showDateTimePicker(tvDeadline, false));
+        tvDate.setOnClickListener(v -> showDateTimePicker(tvDate, 0));
+        tvOpen.setOnClickListener(v -> showDateTimePicker(tvOpen, 1));
+        tvClose.setOnClickListener(v -> showDateTimePicker(tvClose, 2));
+        tvAnnouncement.setOnClickListener(v -> showDateTimePicker(tvAnnouncement, 3));
 
         dialogView.findViewById(R.id.btnAdminDialogCancel).setOnClickListener(v -> dialog.dismiss());
         dialogView.findViewById(R.id.btnAdminDialogSave).setOnClickListener(v -> {
@@ -281,7 +295,9 @@ public class AdminEventFragment extends Fragment {
             }
             newEvent.setImageUrl(img);
             newEvent.setDate(selectedDate);
-            newEvent.setRegistrationDeadline(selectedDeadline);
+            newEvent.setTicketOpenDate(selectedOpenDate);
+            newEvent.setTicketCloseDate(selectedCloseDate);
+            newEvent.setAnnouncementDate(selectedAnnouncementDate);
             
             int catIndex = spinnerCat.getSelectedItemPosition();
             DocumentReference catRef = db.collection("categories").document(categoryList.get(catIndex).getId());
@@ -303,9 +319,15 @@ public class AdminEventFragment extends Fragment {
         dialog.show();
     }
 
-    private void showDateTimePicker(TextView tv, boolean isEventDate) {
+    private void showDateTimePicker(TextView tv, int type) {
         Calendar calendar = Calendar.getInstance();
-        Date targetDate = isEventDate ? selectedDate : selectedDeadline;
+        Date targetDate = null;
+        switch (type) {
+            case 0: targetDate = selectedDate; break;
+            case 1: targetDate = selectedOpenDate; break;
+            case 2: targetDate = selectedCloseDate; break;
+            case 3: targetDate = selectedAnnouncementDate; break;
+        }
         if (targetDate != null) calendar.setTime(targetDate);
 
         new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
@@ -316,12 +338,14 @@ public class AdminEventFragment extends Fragment {
             new TimePickerDialog(getContext(), (view1, hourOfDay, minute) -> {
                 calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 calendar.set(Calendar.MINUTE, minute);
-                if (isEventDate) {
-                    selectedDate = calendar.getTime();
-                } else {
-                    selectedDeadline = calendar.getTime();
+                Date result = calendar.getTime();
+                switch (type) {
+                    case 0: selectedDate = result; break;
+                    case 1: selectedOpenDate = result; break;
+                    case 2: selectedCloseDate = result; break;
+                    case 3: selectedAnnouncementDate = result; break;
                 }
-                tv.setText(sdf.format(calendar.getTime()));
+                tv.setText(sdf.format(result));
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
 
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
