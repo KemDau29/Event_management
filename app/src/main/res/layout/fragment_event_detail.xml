@@ -53,6 +53,71 @@
                     android:textColor="#1A1A1A"
                     android:layout_marginBottom="12dp"/>
 
+                <!-- Ticket Open Info Card (Moved higher) -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardTicketOpenInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="20dp"
+                        android:background="#FFF5F7">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TICKET OPEN"
+                            android:textColor="#F43F5E"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="16dp"
+                            android:letterSpacing="0.1"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Registration Period"
+                            android:textColor="#888888"
+                            android:textSize="12sp"
+                            android:layout_marginBottom="4dp"/>
+
+                        <TextView
+                            android:id="@+id/tvDetailRegistrationPeriod"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="19 - 22 June 2026"
+                            android:textColor="#F43F5E"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="16dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ticket Winners Announcement"
+                            android:textColor="#888888"
+                            android:textSize="12sp"
+                            android:layout_marginBottom="4dp"/>
+
+                        <TextView
+                            android:id="@+id/tvDetailAnnouncementDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="24 June 2026"
+                            android:textColor="#F43F5E"
+                            android:textSize="20sp"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
                 <TextView
                     android:id="@+id/tvDetailPrice"
                     android:layout_width="wrap_content"
@@ -170,71 +235,6 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="12dp"
                     android:visibility="gone"/>
-
-                <!-- Ticket Open Info Card (Like Sample Image) -->
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cardTicketOpenInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="4dp"
-                    android:visibility="gone">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="20dp"
-                        android:background="#FFF5F7"> <!-- Light pink background -->
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="TICKET OPEN"
-                            android:textColor="#F43F5E"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="16dp"
-                            android:letterSpacing="0.1"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Registration Period"
-                            android:textColor="#888888"
-                            android:textSize="12sp"
-                            android:layout_marginBottom="4dp"/>
-
-                        <TextView
-                            android:id="@+id/tvDetailRegistrationPeriod"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="19 - 22 June 2026"
-                            android:textColor="#F43F5E"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="16dp"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Ticket Winners Announcement"
-                            android:textColor="#888888"
-                            android:textSize="12sp"
-                            android:layout_marginBottom="4dp"/>
-
-                        <TextView
-                            android:id="@+id/tvDetailAnnouncementDate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="24 June 2026"
-                            android:textColor="#F43F5E"
-                            android:textSize="20sp"
-                            android:textStyle="bold"/>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
 
                 <LinearLayout
                     android:layout_width="match_parent"

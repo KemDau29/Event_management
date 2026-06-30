@@ -41,6 +41,22 @@
                 android:textColor="#FFFFFF"
                 android:textSize="11sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvFeaturedRegDeadline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="10dp"
+                android:background="@drawable/bg_category_active"
+                android:backgroundTint="#F43F5E"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="⏳ Hạn: 22/06"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
         </RelativeLayout>
 
         <LinearLayout

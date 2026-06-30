@@ -52,6 +52,7 @@ public class EventAdapter extends BaseAdapter {
             holder.tvPrice = convertView.findViewById(R.id.tvEventPrice); //
             holder.imgEvent = convertView.findViewById(R.id.imgEvent); //
             holder.tvSoldOutLabel = convertView.findViewById(R.id.tvSoldOutLabel);
+            holder.tvRegDeadlineLabel = convertView.findViewById(R.id.tvRegDeadlineLabel);
 
             // Gắn chiếc rổ này vào convertView để lần sau dùng lại
             convertView.setTag(holder); //
@@ -67,6 +68,22 @@ public class EventAdapter extends BaseAdapter {
             holder.tvName.setText(event.getTitle()); //
             holder.tvDate.setText(event.getFormattedDate()); //
             holder.tvLocation.setText(event.getLocation()); //
+
+            // Xử lý hiển thị thời hạn đăng ký
+            if (event.getTicketCloseDate() != null) {
+                holder.tvRegDeadlineLabel.setVisibility(View.VISIBLE);
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM", java.util.Locale.getDefault());
+                holder.tvRegDeadlineLabel.setText("⏳ Hạn: " + sdf.format(event.getTicketCloseDate()));
+                
+                if (new java.util.Date().after(event.getTicketCloseDate())) {
+                    holder.tvRegDeadlineLabel.setText("Hết hạn");
+                    holder.tvRegDeadlineLabel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                } else {
+                    holder.tvRegDeadlineLabel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F43F5E")));
+                }
+            } else {
+                holder.tvRegDeadlineLabel.setVisibility(View.GONE);
+            }
 
             // Xử lý hiển thị hết vé
             if (event.isLimited() && event.getRemainingTickets() <= 0) {
@@ -104,5 +121,6 @@ public class EventAdapter extends BaseAdapter {
         TextView tvPrice; //
         ImageView imgEvent; //
         TextView tvSoldOutLabel;
+        TextView tvRegDeadlineLabel;
     }
 }

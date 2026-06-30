@@ -62,7 +62,18 @@
                 android:text="🕒 25/05/2026 • 14:00"
                 android:textSize="12sp"
                 android:textColor="#666666"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tvUpcomingRegDeadline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⏳ Hạn đăng ký: 22/06"
+                android:textSize="11sp"
+                android:textColor="#F43F5E"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"

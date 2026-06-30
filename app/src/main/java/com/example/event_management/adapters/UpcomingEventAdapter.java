@@ -55,6 +55,22 @@ public class UpcomingEventAdapter extends RecyclerView.Adapter<UpcomingEventAdap
             holder.tvUpcomingDate.setText(event.getFormattedDate());
             holder.tvUpcomingPrice.setText(event.getPrice() == 0 ? "Miễn phí" : event.getPrice() + "đ");
 
+            // Xử lý hiển thị thời hạn đăng ký
+            if (event.getTicketCloseDate() != null) {
+                holder.tvUpcomingRegDeadline.setVisibility(View.VISIBLE);
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.getDefault());
+                holder.tvUpcomingRegDeadline.setText("⏳ Hạn đăng ký: " + sdf.format(event.getTicketCloseDate()));
+                
+                if (new java.util.Date().after(event.getTicketCloseDate())) {
+                    holder.tvUpcomingRegDeadline.setTextColor(android.graphics.Color.GRAY);
+                    holder.tvUpcomingRegDeadline.setText("Hết hạn đăng ký");
+                } else {
+                    holder.tvUpcomingRegDeadline.setTextColor(android.graphics.Color.parseColor("#F43F5E"));
+                }
+            } else {
+                holder.tvUpcomingRegDeadline.setVisibility(View.GONE);
+            }
+
             // Xử lý load ảnh bằng Glide
             if (event.getImageUrl() != null && !event.getImageUrl().trim().isEmpty()) {
                 Glide.with(context)
@@ -86,6 +102,7 @@ public class UpcomingEventAdapter extends RecyclerView.Adapter<UpcomingEventAdap
         TextView tvUpcomingTitle;
         TextView tvUpcomingDate;
         TextView tvUpcomingPrice;
+        TextView tvUpcomingRegDeadline;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -93,6 +110,7 @@ public class UpcomingEventAdapter extends RecyclerView.Adapter<UpcomingEventAdap
             tvUpcomingTitle = itemView.findViewById(R.id.tvUpcomingTitle);
             tvUpcomingDate = itemView.findViewById(R.id.tvUpcomingDate);
             tvUpcomingPrice = itemView.findViewById(R.id.tvUpcomingPrice);
+            tvUpcomingRegDeadline = itemView.findViewById(R.id.tvUpcomingRegDeadline);
         }
     }
 }

@@ -50,6 +50,22 @@ public class FeaturedEventAdapter extends RecyclerView.Adapter<FeaturedEventAdap
             holder.tvLocation.setText(String.format("📍  %s", event.getLocation()));
             holder.tvAttendants.setText(String.format("🔥 %d lượt đăng ký", event.getAttendants()));
 
+            // Xử lý hiển thị thời hạn đăng ký
+            if (event.getTicketCloseDate() != null) {
+                holder.tvRegDeadline.setVisibility(View.VISIBLE);
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM", java.util.Locale.getDefault());
+                holder.tvRegDeadline.setText("⏳ Hạn: " + sdf.format(event.getTicketCloseDate()));
+                
+                if (new java.util.Date().after(event.getTicketCloseDate())) {
+                    holder.tvRegDeadline.setText("Hết hạn");
+                    holder.tvRegDeadline.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                } else {
+                    holder.tvRegDeadline.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F43F5E")));
+                }
+            } else {
+                holder.tvRegDeadline.setVisibility(View.GONE);
+            }
+
             if (event.getImageUrl() != null && !event.getImageUrl().trim().isEmpty()) {
                 Glide.with(context)
                         .load(event.getImageUrl())
@@ -73,7 +89,7 @@ public class FeaturedEventAdapter extends RecyclerView.Adapter<FeaturedEventAdap
 
     static class FeaturedViewHolder extends RecyclerView.ViewHolder {
         ImageView imgFeatured;
-        TextView tvTitle, tvDate, tvLocation, tvAttendants;
+        TextView tvTitle, tvDate, tvLocation, tvAttendants, tvRegDeadline;
 
         public FeaturedViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -82,6 +98,7 @@ public class FeaturedEventAdapter extends RecyclerView.Adapter<FeaturedEventAdap
             tvDate = itemView.findViewById(R.id.tvFeaturedDate);
             tvLocation = itemView.findViewById(R.id.tvFeaturedLocation);
             tvAttendants = itemView.findViewById(R.id.tvFeaturedAttendants);
+            tvRegDeadline = itemView.findViewById(R.id.tvFeaturedRegDeadline);
         }
     }
 }
