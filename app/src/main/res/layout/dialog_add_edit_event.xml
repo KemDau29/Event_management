@@ -176,6 +176,27 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Hạn đăng ký vé"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#64748B"
+            android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/tvAdminRegistrationDeadline"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:text="Chọn thời hạn đăng ký"
+            android:gravity="center_vertical"
+            android:textColor="#0F172A"
+            android:background="@drawable/card_background"
+            android:backgroundTint="#F1F5F9"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="20dp"
+            android:drawableEnd="@android:drawable/ic_menu_recent_history"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Danh mục"
             android:textSize="13sp"
             android:textStyle="bold"

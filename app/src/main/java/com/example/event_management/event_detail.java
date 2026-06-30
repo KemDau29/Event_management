@@ -103,6 +103,7 @@ public class event_detail extends Fragment {
             TextView tvLocation = view.findViewById(R.id.tvDetailLocation);
             TextView tvDesc = view.findViewById(R.id.tvDetailDesc);
             TextView tvTimeRange = view.findViewById(R.id.tvDetailTimeRange);
+            TextView tvDeadline = view.findViewById(R.id.tvRegistrationDeadline);
 
             // Ánh xạ các View cho Comment
             layoutCommentsList = view.findViewById(R.id.layoutCommentsList);
@@ -231,6 +232,23 @@ public class event_detail extends Fragment {
                                 // (Bạn có thể bỏ phần này nếu database của bạn đã chuẩn)
                             }
                             timelineAdapter.notifyDataSetChanged();
+
+                            // Load Registration Deadline
+                            if (doc.contains("registrationDeadline")) {
+                                Date deadline = doc.getDate("registrationDeadline");
+                                if (deadline != null) {
+                                    SimpleDateFormat sdfDeadline = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                                    tvDeadline.setText("⏰ Hạn đăng ký: " + sdfDeadline.format(deadline));
+                                    tvDeadline.setVisibility(View.VISIBLE);
+
+                                    if (new Date().after(deadline)) {
+                                        btnAddToCart.setEnabled(false);
+                                        btnAddToCart.setText("HẾT HẠN ĐĂNG KÝ");
+                                        btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                                        tvDeadline.setTextColor(android.graphics.Color.RED);
+                                    }
+                                }
+                            }
 
                             // Kiểm tra xem trường có tồn tại không
                             if (doc.contains("cate")) {

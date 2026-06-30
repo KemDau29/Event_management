@@ -34,9 +34,13 @@ public class Event implements Serializable {
     private boolean isLimited;
     private java.util.Date startTime;
     private java.util.Date endTime;
+    private java.util.Date registrationDeadline;
     private java.util.List<TimelineItem> timeline;
 
     public Event() {}
+
+    public java.util.Date getRegistrationDeadline() { return registrationDeadline; }
+    public void setRegistrationDeadline(java.util.Date registrationDeadline) { this.registrationDeadline = registrationDeadline; }
 
     public java.util.Date getStartTime() { return startTime; }
     public void setStartTime(java.util.Date startTime) { this.startTime = startTime; }
