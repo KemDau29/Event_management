@@ -238,8 +238,9 @@ public class event_detail extends Fragment {
                             timelineAdapter.notifyDataSetChanged();
 
                             // Load Registration Period & Announcement
-                            SimpleDateFormat sdfPretty = new SimpleDateFormat("dd 'tháng' MM, yyyy", new Locale("vi", "VN"));
-                            SimpleDateFormat sdfFull = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                            Locale localeVN = new Locale("vi", "VN");
+                            SimpleDateFormat sdfPretty = new SimpleDateFormat("dd 'tháng' MM, yyyy", localeVN);
+                            SimpleDateFormat sdfFull = new SimpleDateFormat("dd/MM/yyyy HH:mm", localeVN);
                             
                             Date openDate = null;
                             Date closeDate = null;
