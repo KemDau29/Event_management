@@ -209,6 +209,17 @@
                     android:layout_marginBottom="8dp"/>
 
                 <TextView
+                    android:id="@+id/tvRegistrationDeadline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Đăng ký đến ngày: --/--/---- --:-- - Còn --h--m"
+                    android:textColor="#E11D48"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone"/>
+
+                <TextView
                     android:id="@+id/tvDetailDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -223,17 +234,6 @@
                     android:text="🕒 08:00 - 17:00"
                     android:textColor="#444444"
                     android:layout_marginBottom="4dp"
-                    android:visibility="gone"/>
-
-                <TextView
-                    android:id="@+id/tvRegistrationDeadline"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="⏰ Hạn đăng ký: --/--/----"
-                    android:textColor="#E11D48"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp"
                     android:visibility="gone"/>
 
                 <LinearLayout

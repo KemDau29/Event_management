@@ -250,7 +250,7 @@ public class event_detail extends Fragment {
                                     
                                     // Set formatted deadline info with countdown
                                     String timeRemaining = getTimeRemaining(close);
-                                    tvDeadline.setText("Đăng ký đến ngày: " + sdfFull.format(close) + " - " + timeRemaining);
+                                    tvDeadline.setText("Đăng ký mua vé đến ngày: " + sdfFull.format(close) + " - " + timeRemaining);
                                     tvDeadline.setVisibility(View.VISIBLE);
 
                                     Date now = new Date();

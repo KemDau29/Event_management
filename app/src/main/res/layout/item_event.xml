@@ -85,6 +85,17 @@
                     android:text="Tên sự kiện" />
 
                 <TextView
+                    android:id="@+id/tvRegDeadlineText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#F43F5E"
+                    android:layout_marginBottom="4dp"
+                    android:text="Đăng ký mua vé đến ngày: --/--/---- --:--"
+                    android:visibility="gone"/>
+
+                <TextView
                     android:id="@+id/tvEventDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

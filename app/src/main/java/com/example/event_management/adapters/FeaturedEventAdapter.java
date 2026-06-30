@@ -52,18 +52,32 @@ public class FeaturedEventAdapter extends RecyclerView.Adapter<FeaturedEventAdap
 
             // Xử lý hiển thị thời hạn đăng ký
             if (event.getTicketCloseDate() != null) {
-                holder.tvRegDeadline.setVisibility(View.VISIBLE);
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM", java.util.Locale.getDefault());
-                holder.tvRegDeadline.setText("⏳ Hạn: " + sdf.format(event.getTicketCloseDate()));
+                holder.tvRegDeadlineText.setVisibility(View.VISIBLE);
+                java.text.SimpleDateFormat sdfFull = new java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.getDefault());
                 
-                if (new java.util.Date().after(event.getTicketCloseDate())) {
-                    holder.tvRegDeadline.setText("Hết hạn");
-                    holder.tvRegDeadline.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                long diff = event.getTicketCloseDate().getTime() - new java.util.Date().getTime();
+                String deadlineInfo;
+                
+                if (diff <= 0) {
+                    deadlineInfo = "Hết hạn: " + sdfFull.format(event.getTicketCloseDate());
+                    holder.tvRegDeadlineText.setTextColor(android.graphics.Color.GRAY);
                 } else {
-                    holder.tvRegDeadline.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F43F5E")));
+                    long days = diff / (24 * 60 * 60 * 1000);
+                    long hours = (diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000);
+                    long minutes = (diff % (60 * 60 * 1000)) / (60 * 1000);
+                    
+                    StringBuilder timeRem = new StringBuilder("Còn ");
+                    if (days > 0) timeRem.append(days).append("d");
+                    if (hours > 0) timeRem.append(hours).append("h");
+                    timeRem.append(minutes).append("m");
+                    
+                    deadlineInfo = "Hạn: " + sdfFull.format(event.getTicketCloseDate()) + " - " + timeRem;
+                    holder.tvRegDeadlineText.setTextColor(android.graphics.Color.parseColor("#F43F5E"));
                 }
+                holder.tvRegDeadlineText.setText(deadlineInfo);
+                if (holder.tvRegDeadline != null) holder.tvRegDeadline.setVisibility(View.GONE);
             } else {
-                holder.tvRegDeadline.setVisibility(View.GONE);
+                holder.tvRegDeadlineText.setVisibility(View.GONE);
             }
 
             if (event.getImageUrl() != null && !event.getImageUrl().trim().isEmpty()) {
@@ -89,7 +103,7 @@ public class FeaturedEventAdapter extends RecyclerView.Adapter<FeaturedEventAdap
 
     static class FeaturedViewHolder extends RecyclerView.ViewHolder {
         ImageView imgFeatured;
-        TextView tvTitle, tvDate, tvLocation, tvAttendants, tvRegDeadline;
+        TextView tvTitle, tvDate, tvLocation, tvAttendants, tvRegDeadline, tvRegDeadlineText;
 
         public FeaturedViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -99,6 +113,7 @@ public class FeaturedEventAdapter extends RecyclerView.Adapter<FeaturedEventAdap
             tvLocation = itemView.findViewById(R.id.tvFeaturedLocation);
             tvAttendants = itemView.findViewById(R.id.tvFeaturedAttendants);
             tvRegDeadline = itemView.findViewById(R.id.tvFeaturedRegDeadline);
+            tvRegDeadlineText = itemView.findViewById(R.id.tvFeaturedRegDeadlineText);
         }
     }
 }

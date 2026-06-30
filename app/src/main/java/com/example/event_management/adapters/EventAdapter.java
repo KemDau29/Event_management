@@ -53,6 +53,7 @@ public class EventAdapter extends BaseAdapter {
             holder.imgEvent = convertView.findViewById(R.id.imgEvent); //
             holder.tvSoldOutLabel = convertView.findViewById(R.id.tvSoldOutLabel);
             holder.tvRegDeadlineLabel = convertView.findViewById(R.id.tvRegDeadlineLabel);
+            holder.tvRegDeadlineText = convertView.findViewById(R.id.tvRegDeadlineText);
 
             // Gắn chiếc rổ này vào convertView để lần sau dùng lại
             convertView.setTag(holder); //
@@ -66,23 +67,40 @@ public class EventAdapter extends BaseAdapter {
 
         if (event != null) {
             holder.tvName.setText(event.getTitle()); //
-            holder.tvDate.setText(event.getFormattedDate()); //
-            holder.tvLocation.setText(event.getLocation()); //
+            holder.tvDate.setText("🕒 " + event.getFormattedDate()); //
+            holder.tvLocation.setText("📍 " + event.getLocation()); //
 
             // Xử lý hiển thị thời hạn đăng ký
             if (event.getTicketCloseDate() != null) {
-                holder.tvRegDeadlineLabel.setVisibility(View.VISIBLE);
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM", java.util.Locale.getDefault());
-                holder.tvRegDeadlineLabel.setText("⏳ Hạn: " + sdf.format(event.getTicketCloseDate()));
+                holder.tvRegDeadlineText.setVisibility(View.VISIBLE);
+                java.text.SimpleDateFormat sdfFull = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault());
                 
-                if (new java.util.Date().after(event.getTicketCloseDate())) {
-                    holder.tvRegDeadlineLabel.setText("Hết hạn");
-                    holder.tvRegDeadlineLabel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                long diff = event.getTicketCloseDate().getTime() - new java.util.Date().getTime();
+                String deadlineInfo;
+                
+                if (diff <= 0) {
+                    deadlineInfo = "Hết hạn đăng ký: " + sdfFull.format(event.getTicketCloseDate());
+                    holder.tvRegDeadlineText.setTextColor(android.graphics.Color.GRAY);
                 } else {
-                    holder.tvRegDeadlineLabel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F43F5E")));
+                    long days = diff / (24 * 60 * 60 * 1000);
+                    long hours = (diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000);
+                    long minutes = (diff % (60 * 60 * 1000)) / (60 * 1000);
+                    
+                    StringBuilder timeRem = new StringBuilder("Còn ");
+                    if (days > 0) timeRem.append(days).append("d");
+                    if (hours > 0) timeRem.append(hours).append("h");
+                    timeRem.append(minutes).append("m");
+                    
+                    deadlineInfo = "Đăng ký đến ngày: " + sdfFull.format(event.getTicketCloseDate()) + " - " + timeRem;
+                    holder.tvRegDeadlineText.setTextColor(android.graphics.Color.parseColor("#F43F5E"));
                 }
+                
+                holder.tvRegDeadlineText.setText(deadlineInfo);
+                
+                // Old label still used for visual badge if preferred, or hide it
+                if (holder.tvRegDeadlineLabel != null) holder.tvRegDeadlineLabel.setVisibility(View.GONE);
             } else {
-                holder.tvRegDeadlineLabel.setVisibility(View.GONE);
+                holder.tvRegDeadlineText.setVisibility(View.GONE);
             }
 
             // Xử lý hiển thị hết vé
@@ -122,5 +140,6 @@ public class EventAdapter extends BaseAdapter {
         ImageView imgEvent; //
         TextView tvSoldOutLabel;
         TextView tvRegDeadlineLabel;
+        TextView tvRegDeadlineText;
     }
 }

@@ -52,21 +52,34 @@ public class UpcomingEventAdapter extends RecyclerView.Adapter<UpcomingEventAdap
         Event event = eventList.get(position);
         if (event != null) {
             holder.tvUpcomingTitle.setText(event.getTitle());
-            holder.tvUpcomingDate.setText(event.getFormattedDate());
+            holder.tvUpcomingDate.setText("🕒 " + event.getFormattedDate());
             holder.tvUpcomingPrice.setText(event.getPrice() == 0 ? "Miễn phí" : event.getPrice() + "đ");
 
             // Xử lý hiển thị thời hạn đăng ký
             if (event.getTicketCloseDate() != null) {
                 holder.tvUpcomingRegDeadline.setVisibility(View.VISIBLE);
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.getDefault());
-                holder.tvUpcomingRegDeadline.setText("⏳ Hạn đăng ký: " + sdf.format(event.getTicketCloseDate()));
+                java.text.SimpleDateFormat sdfFull = new java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.getDefault());
                 
-                if (new java.util.Date().after(event.getTicketCloseDate())) {
+                long diff = event.getTicketCloseDate().getTime() - new java.util.Date().getTime();
+                String deadlineInfo;
+                
+                if (diff <= 0) {
+                    deadlineInfo = "Hết hạn đăng ký: " + sdfFull.format(event.getTicketCloseDate());
                     holder.tvUpcomingRegDeadline.setTextColor(android.graphics.Color.GRAY);
-                    holder.tvUpcomingRegDeadline.setText("Hết hạn đăng ký");
                 } else {
+                    long days = diff / (24 * 60 * 60 * 1000);
+                    long hours = (diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000);
+                    long minutes = (diff % (60 * 60 * 1000)) / (60 * 1000);
+                    
+                    StringBuilder timeRem = new StringBuilder("Còn ");
+                    if (days > 0) timeRem.append(days).append("d");
+                    if (hours > 0) timeRem.append(hours).append("h");
+                    timeRem.append(minutes).append("m");
+                    
+                    deadlineInfo = "Đăng ký đến ngày: " + sdfFull.format(event.getTicketCloseDate()) + " - " + timeRem;
                     holder.tvUpcomingRegDeadline.setTextColor(android.graphics.Color.parseColor("#F43F5E"));
                 }
+                holder.tvUpcomingRegDeadline.setText(deadlineInfo);
             } else {
                 holder.tvUpcomingRegDeadline.setVisibility(View.GONE);
             }
