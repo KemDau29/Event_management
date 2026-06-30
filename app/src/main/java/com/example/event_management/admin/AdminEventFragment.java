@@ -50,6 +50,10 @@ import android.location.Address;
 import android.location.Geocoder;
 import java.io.IOException;
 
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 public class AdminEventFragment extends Fragment {
 
     private AdminEventAdapter adapter;
@@ -65,7 +69,8 @@ public class AdminEventFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_admin_events, container, false);
 
         db = FirebaseFirestore.getInstance();
-        ListView listView = view.findViewById(R.id.listAdminEvents);
+        RecyclerView recyclerView = view.findViewById(R.id.listAdminEvents);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         adapter = new AdminEventAdapter(requireContext(), new AdminEventAdapter.OnEventActionListener() {
             @Override
@@ -93,13 +98,58 @@ public class AdminEventFragment extends Fragment {
             }
         });
 
-        listView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
+        
+        // Setup Swipe to Reveal
+        setupSwipeToReveal(recyclerView);
+
         loadEvents();
         loadCategories();
 
         view.findViewById(R.id.btnAddEvent).setOnClickListener(v -> showAddEditDialog(null));
 
         return view;
+    }
+
+    private void setupSwipeToReveal(RecyclerView recyclerView) {
+        // Cho phép vuốt cả TRÁI (để mở) và PHẢI (để đóng)
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                // Sau khi vuốt xong (trái hoặc phải), chúng ta làm mới item để nó "khớp" vào trạng thái mới
+                adapter.notifyItemChanged(viewHolder.getBindingAdapterPosition());
+            }
+
+            @Override
+            public void onChildDraw(@NonNull android.graphics.Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    View foregroundView = ((AdminEventAdapter.AdminEventViewHolder) viewHolder).cardForeground;
+                    
+                    // Giới hạn khoảng cách vuốt sang trái (tối đa hiện đủ 2 nút)
+                    float maxSwipeWidth = -getResources().getDisplayMetrics().density * 160;
+                    
+                    // Logic: dX < 0 là đang vuốt trái, dX > 0 là đang vuốt phải
+                    float translationX;
+                    if (dX < 0) {
+                        translationX = Math.max(dX, maxSwipeWidth);
+                    } else {
+                        // Chặn không cho vuốt quá màn hình sang phải
+                        translationX = Math.min(dX, 0); 
+                    }
+                    
+                    getDefaultUIUtil().onDraw(c, recyclerView, foregroundView, translationX, dY, actionState, isCurrentlyActive);
+                } else {
+                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                }
+            }
+        };
+        
+        new ItemTouchHelper(callback).attachToRecyclerView(recyclerView);
     }
 
     private void loadCategories() {
@@ -125,9 +175,16 @@ public class AdminEventFragment extends Fragment {
         EditText edtLng = dialogView.findViewById(R.id.edtAdminEventLng);
         EditText edtPrice = dialogView.findViewById(R.id.edtAdminEventPrice);
         EditText edtRemaining = dialogView.findViewById(R.id.edtAdminEventRemaining);
+        View layoutRemaining = dialogView.findViewById(R.id.layoutAdminEventRemaining);
+        com.google.android.material.switchmaterial.SwitchMaterial switchIsLimited = dialogView.findViewById(R.id.switchIsLimited);
         EditText edtImageUrl = dialogView.findViewById(R.id.edtAdminEventImageUrl);
         TextView tvDate = dialogView.findViewById(R.id.tvAdminEventDate);
         Spinner spinnerCat = dialogView.findViewById(R.id.spinnerAdminEventCategory);
+
+        // Logic toggle limited tickets
+        switchIsLimited.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            layoutRemaining.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        });
 
         // Setup Category Spinner
         List<String> catNames = new ArrayList<>();
@@ -144,7 +201,11 @@ public class AdminEventFragment extends Fragment {
             edtLat.setText(String.valueOf(event.getLatitude()));
             edtLng.setText(String.valueOf(event.getLongitude()));
             edtPrice.setText(String.valueOf(event.getPrice()));
+            
+            switchIsLimited.setChecked(event.isLimited());
+            layoutRemaining.setVisibility(event.isLimited() ? View.VISIBLE : View.GONE);
             edtRemaining.setText(String.valueOf(event.getRemainingTickets()));
+
             edtImageUrl.setText(event.getImageUrl());
             selectedDate = event.getDate();
             if (selectedDate != null) tvDate.setText(sdf.format(selectedDate));
@@ -174,9 +235,10 @@ public class AdminEventFragment extends Fragment {
             String lngStr = edtLng.getText().toString().trim();
             String priceStr = edtPrice.getText().toString().trim();
             String remainStr = edtRemaining.getText().toString().trim();
+            boolean isLimited = switchIsLimited.isChecked();
             String img = edtImageUrl.getText().toString().trim();
 
-            if (title.isEmpty() || desc.isEmpty() || loc.isEmpty() || priceStr.isEmpty() || remainStr.isEmpty() || selectedDate == null || spinnerCat.getSelectedItem() == null) {
+            if (title.isEmpty() || desc.isEmpty() || loc.isEmpty() || priceStr.isEmpty() || (isLimited && remainStr.isEmpty()) || selectedDate == null || spinnerCat.getSelectedItem() == null) {
                 Toast.makeText(getContext(), "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -204,7 +266,12 @@ public class AdminEventFragment extends Fragment {
             }
 
             newEvent.setPrice(Integer.parseInt(priceStr));
-            newEvent.setRemainingTickets(Integer.parseInt(remainStr));
+            newEvent.setLimited(isLimited);
+            if (isLimited) {
+                newEvent.setRemainingTickets(Integer.parseInt(remainStr));
+            } else {
+                newEvent.setRemainingTickets(0); // Hoặc giá trị mặc định cho vô hạn
+            }
             newEvent.setImageUrl(img);
             newEvent.setDate(selectedDate);
             

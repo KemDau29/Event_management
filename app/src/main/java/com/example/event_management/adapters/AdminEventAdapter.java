@@ -4,17 +4,19 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.event_management.R;
 import com.example.event_management.models.Event;
+import com.google.android.material.button.MaterialButton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class AdminEventAdapter extends BaseAdapter {
+public class AdminEventAdapter extends RecyclerView.Adapter<AdminEventAdapter.AdminEventViewHolder> {
     private Context context;
     private List<Event> eventList = new ArrayList<>();
     private OnEventActionListener listener;
@@ -35,34 +37,34 @@ public class AdminEventAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    @NonNull
     @Override
-    public int getCount() { return eventList.size(); }
-    @Override
-    public Object getItem(int position) { return eventList.get(position); }
-    @Override
-    public long getItemId(int position) { return position; }
+    public AdminEventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_admin_event, parent, false);
+        return new AdminEventViewHolder(view);
+    }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_admin_event, parent, false);
-            holder = new ViewHolder();
-            holder.img = convertView.findViewById(R.id.imgAdminEvent);
-            holder.tvName = convertView.findViewById(R.id.tvAdminEventName);
-            holder.tvPrice = convertView.findViewById(R.id.tvAdminEventPrice);
-            holder.btnEdit = convertView.findViewById(R.id.btnEditEvent);
-            holder.btnDelete = convertView.findViewById(R.id.btnDeleteEvent);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
-        }
-
+    public void onBindViewHolder(@NonNull AdminEventViewHolder holder, int position) {
         Event event = eventList.get(position);
         if (event != null) {
             holder.tvName.setText(event.getTitle());
+            holder.tvLocation.setText(event.getLocation());
             holder.tvPrice.setText(String.format(Locale.getDefault(), "%,dđ", event.getPrice()));
             
+            if (event.isLimited()) {
+                holder.tvRemaining.setVisibility(View.VISIBLE);
+                if (event.getRemainingTickets() <= 0) {
+                    holder.tvRemaining.setText("HẾT VÉ");
+                    holder.tvRemaining.setTextColor(android.graphics.Color.RED);
+                } else {
+                    holder.tvRemaining.setText("Vé còn: " + event.getRemainingTickets());
+                    holder.tvRemaining.setTextColor(android.graphics.Color.parseColor("#4CAF50")); // Green
+                }
+            } else {
+                holder.tvRemaining.setVisibility(View.GONE);
+            }
+
             if (event.getImageUrl() != null && !event.getImageUrl().isEmpty()) {
                 Glide.with(context).load(event.getImageUrl()).into(holder.img);
             } else {
@@ -71,14 +73,29 @@ public class AdminEventAdapter extends BaseAdapter {
 
             holder.btnEdit.setOnClickListener(v -> listener.onEdit(event));
             holder.btnDelete.setOnClickListener(v -> listener.onDelete(event));
-            convertView.setOnClickListener(v -> listener.onDetail(event));
+            holder.cardForeground.setOnClickListener(v -> listener.onDetail(event));
         }
-
-        return convertView;
     }
 
-    static class ViewHolder {
-        ImageView img, btnEdit, btnDelete;
-        TextView tvName, tvPrice;
+    @Override
+    public int getItemCount() { return eventList.size(); }
+
+    public static class AdminEventViewHolder extends RecyclerView.ViewHolder {
+        public ImageView img;
+        public MaterialButton btnEdit, btnDelete;
+        public TextView tvName, tvLocation, tvPrice, tvRemaining;
+        public View cardForeground;
+
+        public AdminEventViewHolder(@NonNull View itemView) {
+            super(itemView);
+            img = itemView.findViewById(R.id.imgAdminEvent);
+            tvName = itemView.findViewById(R.id.tvAdminEventName);
+            tvLocation = itemView.findViewById(R.id.tvAdminEventLocation);
+            tvPrice = itemView.findViewById(R.id.tvAdminEventPrice);
+            tvRemaining = itemView.findViewById(R.id.tvAdminEventRemaining);
+            btnEdit = itemView.findViewById(R.id.btnEditEvent);
+            btnDelete = itemView.findViewById(R.id.btnDeleteEvent);
+            cardForeground = itemView.findViewById(R.id.cardAdminEventForeground);
+        }
     }
 }

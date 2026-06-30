@@ -1,62 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_white_rounded_20"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp">
-
-    <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@android:drawable/ic_dialog_alert"
-        app:tint="@android:color/black" />
-
-    <TextView
-        android:id="@+id/tvConfirmMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center"
-        android:text="Bạn có chắc chắn chuyển vé cho 'username' đó chứ?"
-        android:textColor="#E53935"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="32dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnNo"
-            android:layout_width="140dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="16dp"
-            android:backgroundTint="@android:color/black"
-            android:text="Không"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:cornerRadius="30dp" />
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@android:drawable/ic_dialog_alert"
+            app:tint="#E53935"
+            android:contentDescription="Alert Icon" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnYes"
-            android:layout_width="140dp"
-            android:layout_height="60dp"
-            android:backgroundTint="@android:color/white"
-            android:text="Có"
-            android:textAllCaps="false"
-            android:textColor="@android:color/black"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:cornerRadius="30dp"
-            app:strokeColor="@android:color/black"
-            app:strokeWidth="1dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Xác nhận chuyển vé"
+            android:textColor="#1A1C1E"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvConfirmMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Bạn có chắc chắn chuyển vé cho người dùng này không?"
+            android:textColor="#757575"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnNo"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:backgroundTint="#F1F3F6"
+                android:text="Hủy"
+                android:textAllCaps="false"
+                android:textColor="#757575"
+                android:textStyle="bold"
+                app:cornerRadius="26dp" />
+
+            <Button
+                android:id="@+id/btnYes"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_weight="1"
+                android:backgroundTint="#185FA5"
+                android:text="Đồng ý"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                app:cornerRadius="26dp" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.cardview.widget.CardView>

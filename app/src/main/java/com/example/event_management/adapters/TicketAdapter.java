@@ -15,8 +15,10 @@ import com.example.event_management.helpers.EmailHelper;
 import com.example.event_management.models.Ticket;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import androidx.recyclerview.widget.RecyclerView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -57,31 +59,84 @@ public class TicketAdapter extends BaseAdapter {
         TextView tvTitle = view.findViewById(R.id.tvTicketTitle);
         TextView tvCode = view.findViewById(R.id.tvTicketCode);
         TextView tvDate = view.findViewById(R.id.tvPurchaseDate);
+        TextView tvEventTime = view.findViewById(R.id.tvEventTime);
         TextView tvQuantity = view.findViewById(R.id.tvTicketQuantity);
         TextView tvTotal = view.findViewById(R.id.tvTicketTotalPrice);
         TextView tvRecipientInfo = view.findViewById(R.id.tvRecipientInfo);
+        TextView tvStatus = view.findViewById(R.id.tvTicketStatus);
+        TextView tvOngoingNote = view.findViewById(R.id.tvOngoingNote);
+        View layoutActions = view.findViewById(R.id.layoutActionButtons);
         Button btnTransfer = view.findViewById(R.id.btnTransferTicket);
         Button btnCancel = view.findViewById(R.id.btnCancelTicket);
 
         tvTitle.setText(ticket.getTitle());
         tvCode.setText("#" + (ticket.getConfirmCode() != null ? ticket.getConfirmCode() : "N/A"));
         tvDate.setText(ticket.getPurchaseDate() != null ? sdf.format(ticket.getPurchaseDate()) : "");
+        
+        if (ticket.getStartTime() != null) {
+            tvEventTime.setText(sdf.format(ticket.getStartTime()));
+        } else if (ticket.getEventDate() != null) {
+            tvEventTime.setText(sdf.format(ticket.getEventDate()));
+        } else {
+            tvEventTime.setText("N/A");
+        }
+
         tvQuantity.setText(String.format(Locale.getDefault(), "%02d", ticket.getQuantity()));
         tvTotal.setText(String.format(Locale.getDefault(), "%,d đ", (long)ticket.getPrice() * ticket.getQuantity()));
 
-        if ("Đã mua".equals(ticket.getStatus())) {
-            btnTransfer.setVisibility(View.VISIBLE);
-            btnCancel.setVisibility(View.VISIBLE);
+        java.util.Date now = new java.util.Date();
+        java.util.Date compareStart = ticket.getStartTime() != null ? ticket.getStartTime() : ticket.getEventDate();
+        java.util.Date compareEnd = ticket.getEndTime();
+        
+        if (compareEnd == null && ticket.getEventDate() != null) {
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTime(ticket.getEventDate());
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+            cal.set(java.util.Calendar.MINUTE, 59);
+            compareEnd = cal.getTime();
+        }
+
+        boolean isOngoing = compareStart != null && compareEnd != null && 
+                          now.after(compareStart) && now.before(compareEnd);
+
+        if (isOngoing && "Đã mua".equals(ticket.getStatus())) {
+            tvStatus.setText("Đang diễn ra");
+            tvStatus.setTextColor(android.graphics.Color.parseColor("#185FA5"));
+            tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F0F7FF")));
+            
+            layoutActions.setVisibility(View.GONE);
+            tvOngoingNote.setVisibility(View.VISIBLE);
             tvRecipientInfo.setVisibility(View.GONE);
-        } else if ("Đã bán".equals(ticket.getStatus())) {
-            btnTransfer.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
-            tvRecipientInfo.setVisibility(View.VISIBLE);
-            tvRecipientInfo.setText("Đã chuyển cho: " + ticket.getRecipientUsername());
-        } else { // Đã hủy
-            btnTransfer.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
-            tvRecipientInfo.setVisibility(View.GONE);
+
+            view.setOnClickListener(v -> showEventTimelineDialog(ticket.getEventId()));
+        } else {
+            view.setOnClickListener(null);
+            tvOngoingNote.setVisibility(View.GONE);
+            layoutActions.setVisibility(View.VISIBLE);
+
+            if ("Đã mua".equals(ticket.getStatus())) {
+                tvStatus.setText("Đã mua");
+                tvStatus.setTextColor(android.graphics.Color.parseColor("#4CAF50"));
+                tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#E8F5E9")));
+                btnTransfer.setVisibility(View.VISIBLE);
+                btnCancel.setVisibility(View.VISIBLE);
+                tvRecipientInfo.setVisibility(View.GONE);
+            } else if ("Đã bán".equals(ticket.getStatus())) {
+                tvStatus.setText("Đã bán");
+                tvStatus.setTextColor(android.graphics.Color.parseColor("#888888"));
+                tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F5F5F5")));
+                btnTransfer.setVisibility(View.GONE);
+                btnCancel.setVisibility(View.GONE);
+                tvRecipientInfo.setVisibility(View.VISIBLE);
+                tvRecipientInfo.setText("Đã chuyển cho: " + ticket.getRecipientUsername());
+            } else { // Đã hủy
+                tvStatus.setText("Đã hủy");
+                tvStatus.setTextColor(android.graphics.Color.parseColor("#B71C1C"));
+                tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FFEBEE")));
+                btnTransfer.setVisibility(View.GONE);
+                btnCancel.setVisibility(View.GONE);
+                tvRecipientInfo.setVisibility(View.GONE);
+            }
         }
 
         btnTransfer.setOnClickListener(v -> showTransferDialog(ticket));
@@ -251,5 +306,80 @@ public class TicketAdapter extends BaseAdapter {
                 })
                 .setNegativeButton("Không", null)
                 .show();
+    }
+
+    private void showEventTimelineDialog(String eventId) {
+        if (eventId == null) return;
+
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_event_timeline, null);
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        RecyclerView rvTimeline = dialogView.findViewById(R.id.rvTimelineDialog);
+        TextView tvTitle = dialogView.findViewById(R.id.tvTimelineDialogTitle);
+        TextView tvLocation = dialogView.findViewById(R.id.tvTimelineLocation);
+        Button btnViewDetail = dialogView.findViewById(R.id.btnViewEventDetail);
+        View btnClose = dialogView.findViewById(R.id.btnCloseTimeline);
+
+        rvTimeline.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(context));
+        List<com.example.event_management.models.TimelineItem> timelineItems = new ArrayList<>();
+        TimelineAdapter adapter = new TimelineAdapter(timelineItems);
+        rvTimeline.setAdapter(adapter);
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+
+        db.collection("events").document(eventId).get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                com.example.event_management.models.Event event = doc.toObject(com.example.event_management.models.Event.class);
+                if (event != null) {
+                    event.setId(doc.getId());
+                    tvTitle.setText("Lịch trình: " + event.getTitle());
+                    tvLocation.setText("📍 Địa điểm: " + event.getLocation());
+                    
+                    btnViewDetail.setOnClickListener(v -> {
+                        dialog.dismiss();
+                        if (context instanceof androidx.fragment.app.FragmentActivity) {
+                            androidx.fragment.app.FragmentActivity activity = (androidx.fragment.app.FragmentActivity) context;
+                            activity.getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment_container, com.example.event_management.event_detail.newInstance(event))
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+                    });
+
+                    List<HashMap<String, Object>> timelineData = (List<HashMap<String, Object>>) doc.get("timeline");
+                    if (timelineData != null) {
+                        for (HashMap<String, Object> item : timelineData) {
+                            com.example.event_management.models.TimelineItem ti = new com.example.event_management.models.TimelineItem();
+                            
+                            Object startObj = item.get("startTime");
+                        if (startObj instanceof com.google.firebase.Timestamp) {
+                            ti.setStartTime(((com.google.firebase.Timestamp) startObj).toDate());
+                        } else if (startObj instanceof java.util.Date) {
+                            ti.setStartTime((java.util.Date) startObj);
+                        }
+
+                        Object endObj = item.get("endTime");
+                        if (endObj instanceof com.google.firebase.Timestamp) {
+                            ti.setEndTime(((com.google.firebase.Timestamp) endObj).toDate());
+                        } else if (endObj instanceof java.util.Date) {
+                            ti.setEndTime((java.util.Date) endObj);
+                        }
+                            
+                            ti.setActivity((String) item.get("activity"));
+                            timelineItems.add(ti);
+                        }
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        });
+
+        dialog.show();
     }
 }

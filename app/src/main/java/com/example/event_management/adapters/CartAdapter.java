@@ -55,8 +55,7 @@ public class CartAdapter extends BaseAdapter {
             holder.cbSelect = convertView.findViewById(R.id.cbSelectCartItem);
             holder.imgEvent = convertView.findViewById(R.id.imgCartEvent);
             holder.tvName = convertView.findViewById(R.id.tvCartEventName);
-            holder.tvDate = convertView.findViewById(R.id.tvCartEventDate);
-            holder.tvLocation = convertView.findViewById(R.id.tvCartEventLocation);
+            holder.tvTicketType = convertView.findViewById(R.id.tvCartTicketType);
             holder.tvPrice = convertView.findViewById(R.id.tvCartEventPrice);
             holder.tvQty = convertView.findViewById(R.id.tvCartEventQty);
             holder.btnDecrease = convertView.findViewById(R.id.btnDecreaseQty);
@@ -70,8 +69,7 @@ public class CartAdapter extends BaseAdapter {
         CartItem item = cartItemList.get(position);
         if (item != null) {
             holder.tvName.setText(item.getTitle());
-            holder.tvDate.setText(item.getFormattedDate());
-            holder.tvLocation.setText(item.getLocation());
+            holder.tvTicketType.setText("Loại vé: " + item.getTicketType());
             holder.tvPrice.setText(String.format(java.util.Locale.getDefault(), "%dđ", item.getPrice()));
             holder.tvQty.setText(String.valueOf(item.getQuantity()));
 
@@ -99,7 +97,7 @@ public class CartAdapter extends BaseAdapter {
                 if (changeListener != null) changeListener.onCartItemChanged();
 
                 db.collection("carts").document(uid)
-                        .collection("cart_items").document(item.getEventId())
+                        .collection("cart_items").document(item.getCartItemId())
                         .update("isChosen", isChecked);
             });
 
@@ -112,7 +110,7 @@ public class CartAdapter extends BaseAdapter {
                     if (changeListener != null) changeListener.onCartItemChanged();
 
                     db.collection("carts").document(uid)
-                            .collection("cart_items").document(item.getEventId())
+                            .collection("cart_items").document(item.getCartItemId())
                             .update("quantity", newQty);
                 }
             });
@@ -125,14 +123,14 @@ public class CartAdapter extends BaseAdapter {
                 if (changeListener != null) changeListener.onCartItemChanged();
 
                 db.collection("carts").document(uid)
-                        .collection("cart_items").document(item.getEventId())
+                        .collection("cart_items").document(item.getCartItemId())
                         .update("quantity", newQty);
             });
 
             // Nút xóa mặt hàng khỏi giỏ
             holder.btnRemove.setOnClickListener(v -> {
                 db.collection("carts").document(uid)
-                        .collection("cart_items").document(item.getEventId())
+                        .collection("cart_items").document(item.getCartItemId())
                         .delete();
             });
         }
@@ -143,7 +141,7 @@ public class CartAdapter extends BaseAdapter {
     static class ViewHolder {
         CheckBox cbSelect;
         ImageView imgEvent;
-        TextView tvName, tvDate, tvLocation, tvPrice, tvQty, btnDecrease, btnIncrease;
+        TextView tvName, tvTicketType, tvPrice, tvQty, btnDecrease, btnIncrease;
         ImageView btnRemove;
     }
 }

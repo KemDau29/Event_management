@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:clipChildren="false">
 
     <!-- Vùng chứa Fragment -->
     <FrameLayout
@@ -17,21 +18,22 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomNavParent"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:layout_height="60dp"
         android:background="@android:color/transparent"
+        android:clipChildren="false"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <!-- Background trắng cho thanh điều hướng -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="72dp"
+            android:layout_height="60dp"
             android:background="#FFFFFF"
             android:elevation="8dp"
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="60dp"
             android:orientation="horizontal"
             android:elevation="9dp"
             android:weightSum="5"
@@ -132,7 +134,7 @@
             android:id="@+id/btnMyTicketsNav"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="15dp"
             app:cardCornerRadius="30dp"
             app:cardElevation="12dp"
             app:cardBackgroundColor="#185FA5"

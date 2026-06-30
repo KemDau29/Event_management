@@ -51,6 +51,7 @@ public class EventAdapter extends BaseAdapter {
             holder.tvLocation = convertView.findViewById(R.id.tvEventLocation); //
             holder.tvPrice = convertView.findViewById(R.id.tvEventPrice); //
             holder.imgEvent = convertView.findViewById(R.id.imgEvent); //
+            holder.tvSoldOutLabel = convertView.findViewById(R.id.tvSoldOutLabel);
 
             // Gắn chiếc rổ này vào convertView để lần sau dùng lại
             convertView.setTag(holder); //
@@ -66,6 +67,15 @@ public class EventAdapter extends BaseAdapter {
             holder.tvName.setText(event.getTitle()); //
             holder.tvDate.setText(event.getFormattedDate()); //
             holder.tvLocation.setText(event.getLocation()); //
+
+            // Xử lý hiển thị hết vé
+            if (event.isLimited() && event.getRemainingTickets() <= 0) {
+                holder.tvSoldOutLabel.setVisibility(View.VISIBLE);
+                holder.tvPrice.setTextColor(android.graphics.Color.GRAY);
+            } else {
+                holder.tvSoldOutLabel.setVisibility(View.GONE);
+                holder.tvPrice.setTextColor(android.graphics.Color.BLACK);
+            }
 
             // Xử lý hiển thị giá tiền
             holder.tvPrice.setText(event.getPrice() == 0 ? "Miễn phí" : event.getPrice() + "đ"); //
@@ -93,5 +103,6 @@ public class EventAdapter extends BaseAdapter {
         TextView tvLocation; //
         TextView tvPrice; //
         ImageView imgEvent; //
+        TextView tvSoldOutLabel;
     }
 }

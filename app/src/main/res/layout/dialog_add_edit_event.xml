@@ -18,7 +18,7 @@
             android:text="Thông tin sự kiện"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#0F172A"
+            android:textColor="#000000"
             android:layout_marginBottom="24dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -97,6 +97,13 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchIsLimited"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Giới hạn số lượng vé"
+            android:layout_marginBottom="8dp"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -118,6 +125,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutAdminEventRemaining"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -151,7 +159,7 @@
             android:text="Ngày diễn ra"
             android:textSize="13sp"
             android:textStyle="bold"
-            android:textColor="#64748B"
+            android:textColor="#666666"
             android:layout_marginBottom="8dp"/>
         <TextView
             android:id="@+id/tvAdminEventDate"
@@ -159,9 +167,8 @@
             android:layout_height="54dp"
             android:text="Chọn ngày và giờ"
             android:gravity="center_vertical"
-            android:textColor="#0F172A"
-            android:background="@drawable/card_background"
-            android:backgroundTint="#F1F5F9"
+            android:textColor="#000000"
+            android:background="@drawable/bg_gray_rounded_10"
             android:paddingHorizontal="16dp"
             android:layout_marginBottom="20dp"
             android:drawableEnd="@android:drawable/ic_menu_myplaces"/>
@@ -172,14 +179,13 @@
             android:text="Danh mục"
             android:textSize="13sp"
             android:textStyle="bold"
-            android:textColor="#64748B"
+            android:textColor="#666666"
             android:layout_marginBottom="8dp"/>
         <Spinner
             android:id="@+id/spinnerAdminEventCategory"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:background="@drawable/card_background"
-            android:backgroundTint="#F1F5F9"
+            android:background="@drawable/bg_gray_rounded_10"
             android:layout_marginBottom="32dp"/>
 
         <LinearLayout
@@ -192,10 +198,11 @@
                 android:layout_weight="1"
                 android:layout_height="52dp"
                 android:text="Hủy"
-                android:textColor="#64748B"
-                android:backgroundTint="#F1F5F9"
+                android:textAllCaps="false"
+                android:textColor="#666666"
+                android:backgroundTint="#F5F5F5"
                 android:layout_marginEnd="8dp"
-                app:cornerRadius="12dp"
+                app:cornerRadius="8dp"
                 style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAdminDialogSave"
@@ -203,11 +210,12 @@
                 android:layout_weight="1"
                 android:layout_height="52dp"
                 android:text="Lưu lại"
+                android:textAllCaps="false"
                 android:textStyle="bold"
-                android:backgroundTint="#2563EB"
+                android:backgroundTint="#185FA5"
                 android:textColor="#FFFFFF"
                 android:layout_marginStart="8dp"
-                app:cornerRadius="12dp"/>
+                app:cornerRadius="8dp"/>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

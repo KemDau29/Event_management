@@ -25,6 +25,7 @@ public class MyTicketsFragment extends Fragment {
     private ListView listTickets;
     private TicketAdapter adapter;
     private List<Ticket> ticketList = new ArrayList<>();
+    private com.google.firebase.firestore.ListenerRegistration listenerRegistration;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private String currentStatus = "Đã mua";
@@ -62,17 +63,23 @@ public class MyTicketsFragment extends Fragment {
     private void selectTab(String status) {
         currentStatus = status;
         
-        // Update UI
-        tabPurchased.setTextColor(status.equals("Đã mua") ? 0xFFFFFFFF : 0xFF888888);
-        tabSold.setTextColor(status.equals("Đã bán") ? 0xFFFFFFFF : 0xFF888888);
-        tabCancelled.setTextColor(status.equals("Đã hủy") ? 0xFFFFFFFF : 0xFF888888);
+        // Update UI colors for White Theme
+        tabPurchased.setTextColor(status.equals("Đã mua") ? 0xFF185FA5 : 0xFF888888);
+        tabSold.setTextColor(status.equals("Đã bán") ? 0xFF185FA5 : 0xFF888888);
+        tabCancelled.setTextColor(status.equals("Đã hủy") ? 0xFF185FA5 : 0xFF888888);
         
-        // Move indicator (simple animation or just jump)
+        tabPurchased.setTypeface(null, status.equals("Đã mua") ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+        tabSold.setTypeface(null, status.equals("Đã bán") ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+        tabCancelled.setTypeface(null, status.equals("Đã hủy") ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+
+        // Move indicator
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        float tabWidth = screenWidth / 3f;
         float translationX = 0;
+        
         if (status.equals("Đã mua")) translationX = 0;
-        else if (status.equals("Đã bán")) translationX = screenWidth / 3f;
-        else if (status.equals("Đã hủy")) translationX = (screenWidth / 3f) * 2;
+        else if (status.equals("Đã bán")) translationX = tabWidth;
+        else if (status.equals("Đã hủy")) translationX = tabWidth * 2;
         
         indicator.animate().translationX(translationX).setDuration(200).start();
 
@@ -80,21 +87,63 @@ public class MyTicketsFragment extends Fragment {
     }
 
     private void loadTickets() {
+        if (mAuth.getCurrentUser() == null) return;
         String uid = mAuth.getCurrentUser().getUid();
-        
-        db.collection("tickets")
+
+        // 1. Hủy listener cũ nếu đang chạy
+        if (listenerRegistration != null) {
+            listenerRegistration.remove();
+        }
+
+        // 2. Xóa danh sách hiện tại để tránh hiện dữ liệu tab cũ
+        ticketList.clear();
+        adapter.setTicketList(ticketList);
+
+        // 3. Lắng nghe dữ liệu mới cho tab hiện tại
+        listenerRegistration = db.collection("tickets")
                 .whereEqualTo("userId", uid)
                 .whereEqualTo("status", currentStatus)
                 .orderBy("purchaseDate", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
-                    if (error != null) return;
+                    if (error != null) {
+                        android.util.Log.e("TICKETS_ERROR", "Lỗi load vé: " + error.getMessage());
+                        return;
+                    }
                     if (value != null) {
                         ticketList.clear();
+                        java.util.Date now = new java.util.Date();
                         for (QueryDocumentSnapshot doc : value) {
-                            ticketList.add(doc.toObject(Ticket.class));
+                            Ticket ticket = doc.toObject(Ticket.class);
+                            
+                            // Lọc bỏ các vé đã kết thúc khỏi mục "Đã mua"
+                            if (currentStatus.equals("Đã mua")) {
+                                java.util.Date endTime = ticket.getEndTime();
+                                if (endTime == null && ticket.getEventDate() != null) {
+                                    // Nếu không có giờ kết thúc, mặc định là hết ngày của eventDate
+                                    java.util.Calendar cal = java.util.Calendar.getInstance();
+                                    cal.setTime(ticket.getEventDate());
+                                    cal.set(java.util.Calendar.HOUR_OF_DAY, 23);
+                                    cal.set(java.util.Calendar.MINUTE, 59);
+                                    endTime = cal.getTime();
+                                }
+                                
+                                if (endTime != null && now.after(endTime)) {
+                                    continue; // Bỏ qua vì sự kiện đã kết thúc
+                                }
+                            }
+                            
+                            ticketList.add(ticket);
                         }
                         adapter.setTicketList(ticketList);
                     }
                 });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (listenerRegistration != null) {
+            listenerRegistration.remove();
+        }
     }
 }

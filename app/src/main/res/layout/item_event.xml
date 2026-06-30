@@ -28,6 +28,20 @@
                 android:scaleType="centerCrop"
                 android:src="@android:drawable/ic_menu_gallery"
                 android:contentDescription="Hình ảnh sự kiện" />
+
+            <TextView
+                android:id="@+id/tvSoldOutLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="#80000000"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:text="HẾT VÉ"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:visibility="gone" />
         </RelativeLayout>
 
         <RelativeLayout

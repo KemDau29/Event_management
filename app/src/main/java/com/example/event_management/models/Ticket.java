@@ -12,10 +12,13 @@ public class Ticket implements Serializable {
     private String title;
     private int price;
     private Date eventDate;
+    private Date startTime;
+    private Date endTime;
     private Date purchaseDate;
     private String location;
     private String imgUrl;
     private int quantity;
+    private String ticketType;
     private String status; // "Đã mua", "Đã bán", "Đã hủy"
     private String confirmCode;
     private String recipientUsername; // Lưu username người nhận nếu đã chuyển
@@ -47,6 +50,12 @@ public class Ticket implements Serializable {
     public Date getEventDate() { return eventDate; }
     public void setEventDate(Date eventDate) { this.eventDate = eventDate; }
 
+    public Date getStartTime() { return startTime; }
+    public void setStartTime(Date startTime) { this.startTime = startTime; }
+
+    public Date getEndTime() { return endTime; }
+    public void setEndTime(Date endTime) { this.endTime = endTime; }
+
     public Date getPurchaseDate() { return purchaseDate; }
     public void setPurchaseDate(Date purchaseDate) { this.purchaseDate = purchaseDate; }
 
@@ -58,6 +67,9 @@ public class Ticket implements Serializable {
 
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
+
+    public String getTicketType() { return ticketType; }
+    public void setTicketType(String ticketType) { this.ticketType = ticketType; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

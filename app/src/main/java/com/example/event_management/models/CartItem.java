@@ -7,13 +7,18 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CartItem implements Serializable {
+    private String cartItemId;
     private String eventId;
     private String title;
     private int price;
     private Date date;
+    private Date startTime;
+    private Date endTime;
     private String location;
     private String imgUrl;
     private int quantity;
+    private String ticketType;
+    private String ticketDescription;
     private boolean isChosen;
     private String confirmCode;
 
@@ -22,6 +27,9 @@ public class CartItem implements Serializable {
 
     public String getConfirmCode() { return confirmCode; }
     public void setConfirmCode(String confirmCode) { this.confirmCode = confirmCode; }
+
+    public String getCartItemId() { return cartItemId; }
+    public void setCartItemId(String cartItemId) { this.cartItemId = cartItemId; }
 
     public String getEventId() { return eventId; }
     public void setEventId(String eventId) { this.eventId = eventId; }
@@ -47,6 +55,12 @@ public class CartItem implements Serializable {
 
     public Date getDate() { return date; }
     public void setDate(Date date) { this.date = date; }
+
+    public Date getStartTime() { return startTime; }
+    public void setStartTime(Date startTime) { this.startTime = startTime; }
+
+    public Date getEndTime() { return endTime; }
+    public void setEndTime(Date endTime) { this.endTime = endTime; }
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
@@ -76,6 +90,22 @@ public class CartItem implements Serializable {
                 this.quantity = 1;
             }
         }
+    }
+
+    public String getTicketType() {
+        return ticketType;
+    }
+
+    public void setTicketType(String ticketType) {
+        this.ticketType = ticketType;
+    }
+
+    public String getTicketDescription() {
+        return ticketDescription;
+    }
+
+    public void setTicketDescription(String ticketDescription) {
+        this.ticketDescription = ticketDescription;
     }
 
     public boolean isChosen() { return isChosen; }

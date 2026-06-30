@@ -30,8 +30,30 @@ public class Event implements Serializable {
     private int attendants;
     private String imageUrl; // Thay thế cho imageUrl cũ nếu cần, hoặc dùng song song
     private int remainingTickets;
+    private java.util.List<TicketType> ticketTypes;
+    private boolean isLimited;
+    private java.util.Date startTime;
+    private java.util.Date endTime;
+    private java.util.List<TimelineItem> timeline;
 
     public Event() {}
+
+    public java.util.Date getStartTime() { return startTime; }
+    public void setStartTime(java.util.Date startTime) { this.startTime = startTime; }
+
+    public java.util.Date getEndTime() { return endTime; }
+    public void setEndTime(java.util.Date endTime) { this.endTime = endTime; }
+
+    public java.util.List<TimelineItem> getTimeline() { return timeline; }
+    public void setTimeline(java.util.List<TimelineItem> timeline) { this.timeline = timeline; }
+
+    public java.util.List<TicketType> getTicketTypes() {
+        return ticketTypes;
+    }
+
+    public void setTicketTypes(java.util.List<TicketType> ticketTypes) {
+        this.ticketTypes = ticketTypes;
+    }
 
     public double getLatitude() { return latitude; }
     public void setLatitude(double latitude) { this.latitude = latitude; }
@@ -66,6 +88,9 @@ public class Event implements Serializable {
 
     public int getRemainingTickets() { return remainingTickets; }
     public void setRemainingTickets(int remainingTickets) { this.remainingTickets = remainingTickets; }
+
+    public boolean isLimited() { return isLimited; }
+    public void setLimited(boolean limited) { isLimited = limited; }
 
     public String getFormattedDate() {
         if (date == null) return "";
