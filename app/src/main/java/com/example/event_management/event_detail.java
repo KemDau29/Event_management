@@ -241,36 +241,54 @@ public class event_detail extends Fragment {
                             SimpleDateFormat sdfPretty = new SimpleDateFormat("dd MMMM yyyy", Locale.US);
                             SimpleDateFormat sdfFull = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
                             
-                            if (doc.contains("ticketOpenDate") && doc.contains("ticketCloseDate")) {
-                                Date open = doc.getDate("ticketOpenDate");
-                                Date close = doc.getDate("ticketCloseDate");
-                                if (open != null && close != null) {
-                                    cardTicketOpen.setVisibility(View.VISIBLE);
-                                    tvRegPeriod.setText(sdfPretty.format(open) + " - " + sdfPretty.format(close));
-                                    
-                                    // Set formatted deadline info with countdown
-                                    String timeRemaining = getTimeRemaining(close);
-                                    tvDeadline.setText("Đăng ký mua vé đến ngày: " + sdfFull.format(close) + " - " + timeRemaining);
-                                    tvDeadline.setVisibility(View.VISIBLE);
+                            Date openDate = null;
+                            Date closeDate = null;
 
-                                    Date now = new Date();
-                                    if (now.before(open)) {
-                                        btnAddToCart.setEnabled(false);
-                                        btnAddToCart.setText("CHƯA ĐẾN HẠN ĐĂNG KÝ");
-                                        btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
-                                        tvRegPeriod.setTextColor(android.graphics.Color.GRAY);
-                                    } else if (now.after(close)) {
-                                        btnAddToCart.setEnabled(false);
-                                        btnAddToCart.setText("HẾT HẠN ĐĂNG KÝ");
-                                        btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
-                                        tvRegPeriod.setTextColor(android.graphics.Color.RED);
-                                        tvDeadline.setText("Hết hạn đăng ký: " + sdfFull.format(close));
-                                    } else {
-                                        // Đang trong thời gian đăng ký
-                                        btnAddToCart.setEnabled(true);
-                                        btnAddToCart.setText("Thêm vào giỏ hàng");
-                                        btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#185FA5")));
-                                    }
+                            if (doc.contains("ticketOpenDate")) {
+                                openDate = doc.getDate("ticketOpenDate");
+                            }
+                            if (doc.contains("ticketCloseDate")) {
+                                closeDate = doc.getDate("ticketCloseDate");
+                            }
+
+                            // FALLBACK: Nếu không có hạn đăng ký, mặc định kết thúc 24h trước khi sự kiện bắt đầu
+                            if (closeDate == null && event.getDate() != null) {
+                                long oneDayMillis = 24 * 60 * 60 * 1000;
+                                closeDate = new Date(event.getDate().getTime() - oneDayMillis);
+                            }
+                            
+                            // FALLBACK: Nếu không có ngày mở, mặc định là 7 ngày trước ngày đóng
+                            if (openDate == null && closeDate != null) {
+                                long sevenDaysMillis = 7L * 24 * 60 * 60 * 1000;
+                                openDate = new Date(closeDate.getTime() - sevenDaysMillis);
+                            }
+
+                            if (openDate != null && closeDate != null) {
+                                cardTicketOpen.setVisibility(View.VISIBLE);
+                                tvRegPeriod.setText(sdfPretty.format(openDate) + " - " + sdfPretty.format(closeDate));
+                                
+                                // Set formatted deadline info with countdown
+                                String timeRemaining = getTimeRemaining(closeDate);
+                                tvDeadline.setText("Đăng ký mua vé đến ngày: " + sdfFull.format(closeDate) + " - " + timeRemaining);
+                                tvDeadline.setVisibility(View.VISIBLE);
+
+                                Date now = new Date();
+                                if (now.before(openDate)) {
+                                    btnAddToCart.setEnabled(false);
+                                    btnAddToCart.setText("CHƯA ĐẾN HẠN ĐĂNG KÝ");
+                                    btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                                    tvRegPeriod.setTextColor(android.graphics.Color.GRAY);
+                                } else if (now.after(closeDate)) {
+                                    btnAddToCart.setEnabled(false);
+                                    btnAddToCart.setText("HẾT HẠN ĐĂNG KÝ");
+                                    btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                                    tvRegPeriod.setTextColor(android.graphics.Color.RED);
+                                    tvDeadline.setText("Hết hạn đăng ký: " + sdfFull.format(closeDate));
+                                } else {
+                                    // Đang trong thời gian đăng ký
+                                    btnAddToCart.setEnabled(true);
+                                    btnAddToCart.setText("Thêm vào giỏ hàng");
+                                    btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#185FA5")));
                                 }
                             }
                             
