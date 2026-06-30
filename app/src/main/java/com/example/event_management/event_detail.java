@@ -251,10 +251,17 @@ public class event_detail extends Fragment {
                                         btnAddToCart.setEnabled(false);
                                         btnAddToCart.setText("CHƯA ĐẾN HẠN ĐĂNG KÝ");
                                         btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                                        tvRegPeriod.setTextColor(android.graphics.Color.GRAY);
                                     } else if (now.after(close)) {
                                         btnAddToCart.setEnabled(false);
                                         btnAddToCart.setText("HẾT HẠN ĐĂNG KÝ");
                                         btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                                        tvRegPeriod.setTextColor(android.graphics.Color.RED);
+                                    } else {
+                                        // Đang trong thời gian đăng ký
+                                        btnAddToCart.setEnabled(true);
+                                        btnAddToCart.setText("Thêm vào giỏ hàng");
+                                        btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#185FA5")));
                                     }
                                 }
                             }
