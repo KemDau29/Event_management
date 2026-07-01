@@ -107,7 +107,11 @@ public class event_detail extends Fragment {
             
             View cardTicketOpen = view.findViewById(R.id.cardTicketOpenInfo);
             TextView tvRegPeriod = view.findViewById(R.id.tvDetailRegistrationPeriod);
-            TextView tvAnnounce = view.findViewById(R.id.tvDetailAnnouncementDate);
+            TextView tvActualDate = view.findViewById(R.id.tvDetailEventActualDate);
+
+            // Các View hiển thị vé sớm còn lại
+            View layoutEBRemaining = view.findViewById(R.id.layoutEarlyBirdRemaining);
+            TextView tvEBRemaining = view.findViewById(R.id.tvDetailEarlyBirdRemaining);
 
             // Ánh xạ các View cho Comment
             layoutCommentsList = view.findViewById(R.id.layoutCommentsList);
@@ -187,6 +191,26 @@ public class event_detail extends Fragment {
                                     tt.setName((String) t.get("name"));
                                     tt.setPrice(((Long) t.get("price")).intValue());
                                     tt.setDescription((String) t.get("description"));
+                                    
+                                    // Load Early Bird & Limit fields
+                                    if (t.containsKey("maxQuantity")) {
+                                        tt.setMaxQuantity(((Long) t.get("maxQuantity")).intValue());
+                                    }
+                                    if (t.containsKey("soldQuantity")) {
+                                        tt.setSoldQuantity(((Long) t.get("soldQuantity")).intValue());
+                                    }
+                                    if (t.containsKey("isEarlyBird")) {
+                                        tt.setEarlyBird((Boolean) t.get("isEarlyBird"));
+                                    }
+                                    if (t.containsKey("deadline")) {
+                                        Object deadlineObj = t.get("deadline");
+                                        if (deadlineObj instanceof com.google.firebase.Timestamp) {
+                                            tt.setDeadline(((com.google.firebase.Timestamp) deadlineObj).toDate());
+                                        } else if (deadlineObj instanceof java.util.Date) {
+                                            tt.setDeadline((java.util.Date) deadlineObj);
+                                        }
+                                    }
+
                                     ticketTypesList.add(tt);
                                 }
                             } else {
@@ -244,6 +268,8 @@ public class event_detail extends Fragment {
                             
                             Date openDate = null;
                             Date closeDate = null;
+                            Date ebOpen = null;
+                            Date ebClose = null;
 
                             if (doc.contains("ticketOpenDate")) {
                                 openDate = doc.getDate("ticketOpenDate");
@@ -251,51 +277,83 @@ public class event_detail extends Fragment {
                             if (doc.contains("ticketCloseDate")) {
                                 closeDate = doc.getDate("ticketCloseDate");
                             }
-
-                            // FALLBACK: Nếu không có hạn đăng ký, mặc định kết thúc 24h trước khi sự kiện bắt đầu
-                            if (closeDate == null && event.getDate() != null) {
-                                long oneDayMillis = 24 * 60 * 60 * 1000;
-                                closeDate = new Date(event.getDate().getTime() - oneDayMillis);
+                            if (doc.contains("earlyBirdOpenDate")) {
+                                ebOpen = doc.getDate("earlyBirdOpenDate");
+                                event.setEarlyBirdOpenDate(ebOpen);
                             }
-                            
-                            // FALLBACK: Nếu không có ngày mở, mặc định là 7 ngày trước ngày đóng
-                            if (openDate == null && closeDate != null) {
-                                long sevenDaysMillis = 7L * 24 * 60 * 60 * 1000;
-                                openDate = new Date(closeDate.getTime() - sevenDaysMillis);
+                            if (doc.contains("earlyBirdDeadline")) {
+                                ebClose = doc.getDate("earlyBirdDeadline");
+                                event.setEarlyBirdDeadline(ebClose);
+                            }
+                            if (doc.contains("earlyBirdPrice")) {
+                                event.setEarlyBirdPrice(doc.getLong("earlyBirdPrice").intValue());
+                            }
+                            if (doc.contains("earlyBirdLimit")) {
+                                event.setEarlyBirdLimit(doc.getLong("earlyBirdLimit").intValue());
+                            }
+                            if (doc.contains("earlyBirdSold")) {
+                                event.setEarlyBirdSold(doc.getLong("earlyBirdSold").intValue());
+                            }
+                            if (doc.contains("ticketOpenDate")) {
+                                event.setTicketOpenDate(doc.getDate("ticketOpenDate"));
+                            }
+                            if (doc.contains("ticketCloseDate")) {
+                                event.setTicketCloseDate(doc.getDate("ticketCloseDate"));
                             }
 
-                            if (openDate != null && closeDate != null) {
+                            // Cập nhật trạng thái nút đăng ký dựa trên các giai đoạn
+                            Date now = new Date();
+                            boolean canRegister = false;
+                            String statusText = "Thêm vào giỏ hàng";
+                            int statusColor = android.graphics.Color.parseColor("#185FA5");
+                            String deadlineInfo = "";
+
+                            if (ebOpen != null && ebClose != null && now.after(ebOpen) && now.before(ebClose)) {
+                                // Đang trong giai đoạn Early Bird
+                                canRegister = true;
+                                statusText = "Đặt vé sớm (Early Bird)";
+                                deadlineInfo = "Hạn chót mua vé sớm: " + sdfFull.format(ebClose) + " - " + getTimeRemaining(ebClose);
+                            } else if (openDate != null && closeDate != null && now.after(openDate) && now.before(closeDate)) {
+                                // Đang trong giai đoạn chính thức
+                                canRegister = true;
+                                deadlineInfo = "Hạn chót đăng ký: " + sdfFull.format(closeDate) + " - " + getTimeRemaining(closeDate);
+                            } else if (ebOpen != null && now.before(ebOpen)) {
+                                statusText = "CHƯA ĐẾN HẠN BÁN SỚM";
+                                statusColor = android.graphics.Color.GRAY;
+                                deadlineInfo = "Ngày mở bán sớm: " + sdfFull.format(ebOpen);
+                            } else if (openDate != null && now.before(openDate) && (ebClose == null || now.after(ebClose))) {
+                                statusText = "CHỜ ĐẾN HẠN BÁN CHÍNH THỨC";
+                                statusColor = android.graphics.Color.GRAY;
+                                deadlineInfo = "Ngày mở bán chính thức: " + sdfFull.format(openDate);
+                            } else if (closeDate != null && now.after(closeDate)) {
+                                statusText = "HẾT HẠN ĐĂNG KÝ";
+                                statusColor = android.graphics.Color.GRAY;
+                                deadlineInfo = "Đã hết hạn đăng ký vào: " + sdfFull.format(closeDate);
+                            }
+
+                            btnAddToCart.setEnabled(canRegister);
+                            btnAddToCart.setText(statusText);
+                            btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(statusColor));
+                            tvDeadline.setText(deadlineInfo);
+                            tvDeadline.setVisibility(View.VISIBLE);
+
+                            if (ebOpen != null && ebClose != null) {
                                 cardTicketOpen.setVisibility(View.VISIBLE);
-                                tvRegPeriod.setText(sdfPretty.format(openDate) + " - " + sdfPretty.format(closeDate));
-                                
-                                // Set formatted deadline info with countdown
-                                String timeRemaining = getTimeRemaining(closeDate);
-                                tvDeadline.setText("Đăng ký mua vé đến ngày: " + sdfFull.format(closeDate) + " - " + timeRemaining);
-                                tvDeadline.setVisibility(View.VISIBLE);
-
-                                Date now = new Date();
-                                if (now.before(openDate)) {
-                                    btnAddToCart.setEnabled(false);
-                                    btnAddToCart.setText("CHƯA ĐẾN HẠN ĐĂNG KÝ");
-                                    btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
-                                    tvRegPeriod.setTextColor(android.graphics.Color.GRAY);
-                                } else if (now.after(closeDate)) {
-                                    btnAddToCart.setEnabled(false);
-                                    btnAddToCart.setText("HẾT HẠN ĐĂNG KÝ");
-                                    btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
-                                    tvRegPeriod.setTextColor(android.graphics.Color.RED);
-                                    tvDeadline.setText("Hết hạn đăng ký: " + sdfFull.format(closeDate));
-                                } else {
-                                    // Đang trong thời gian đăng ký
-                                    btnAddToCart.setEnabled(true);
-                                    btnAddToCart.setText("Thêm vào giỏ hàng");
-                                    btnAddToCart.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#185FA5")));
-                                }
+                                tvRegPeriod.setText("Sớm: " + sdfPretty.format(ebOpen) + " - " + sdfPretty.format(ebClose) + "\nChính thức: " + (openDate != null ? sdfPretty.format(openDate) : "?") + " - " + (closeDate != null ? sdfPretty.format(closeDate) : "?"));
                             }
                             
                             if (event.getDate() != null) {
-                                tvAnnounce.setText(sdfPretty.format(event.getDate()));
+                                tvActualDate.setText(sdfPretty.format(event.getDate()));
                                 tvDate.setText("Sự kiện diễn ra vào ngày " + sdfFull.format(event.getDate()));
+                            }
+
+                            // Hiển thị số lượng vé sớm còn lại
+                            if (event.getEarlyBirdPrice() > 0 && event.getEarlyBirdLimit() > 0) {
+                                layoutEBRemaining.setVisibility(View.VISIBLE);
+                                int ebLeft = event.getEarlyBirdLimit() - event.getEarlyBirdSold();
+                                tvEBRemaining.setText(String.valueOf(Math.max(0, ebLeft)));
+                            } else {
+                                layoutEBRemaining.setVisibility(View.GONE);
                             }
 
                             // Kiểm tra xem trường có tồn tại không
@@ -554,8 +612,45 @@ public class event_detail extends Fragment {
         Button btnConfirm = dialogView.findViewById(R.id.btnConfirmAdd);
 
         List<String> typeNames = new ArrayList<>();
-        for (TicketType tt : ticketTypesList) {
-            typeNames.add(tt.getName() + " - " + String.format("%,dđ", tt.getPrice()));
+        List<TicketType> availableTypes = new ArrayList<>();
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        Date now = new Date();
+
+        // Kiểm tra xem hiện tại đang ở giai đoạn nào
+        boolean isEarlyBirdPhase = event.getEarlyBirdOpenDate() != null && event.getEarlyBirdDeadline() != null && 
+                                  now.after(event.getEarlyBirdOpenDate()) && now.before(event.getEarlyBirdDeadline());
+        
+        boolean isOfficialPhase = event.getTicketOpenDate() != null && event.getTicketCloseDate() != null && 
+                                 now.after(event.getTicketOpenDate()) && now.before(event.getTicketCloseDate());
+
+        if (isEarlyBirdPhase && event.isEarlyBirdAvailable()) {
+            // TRONG THỜI GIAN VÉ SỚM: Chỉ cho chọn vé Early Bird
+            String ebName = "Vé sớm (Early Bird)";
+            String displayName = ebName + " - " + String.format("%,dđ", event.getEarlyBirdPrice());
+            if (event.getEarlyBirdDeadline() != null) {
+                displayName += " [Hạn: " + sdf.format(event.getEarlyBirdDeadline()) + "]";
+            }
+            typeNames.add(displayName);
+            
+            TicketType ebType = new TicketType(ebName, event.getEarlyBirdPrice(), "Vé đặt sớm với giá ưu đãi");
+            ebType.setEarlyBird(true);
+            availableTypes.add(ebType);
+        } else if (isOfficialPhase) {
+            // TRONG THỜI GIAN CHÍNH THỨC: Chỉ cho chọn các loại vé thông thường
+            for (TicketType tt : ticketTypesList) {
+                if (tt.isAvailable()) {
+                    String displayName = tt.getName() + " - " + String.format("%,dđ", tt.getPrice());
+                    typeNames.add(displayName);
+                    availableTypes.add(tt);
+                }
+            }
+        }
+
+        if (availableTypes.isEmpty()) {
+            Toast.makeText(getContext(), "Hiện tại không có loại vé nào khả dụng", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+            return;
         }
 
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, typeNames);
@@ -563,13 +658,13 @@ public class event_detail extends Fragment {
         spinner.setAdapter(adapter);
 
         selectedQuantity = 1;
-        selectedTicketType = ticketTypesList.get(0);
+        selectedTicketType = availableTypes.get(0);
         tvPrice.setText(String.format("Giá: %,dđ", selectedTicketType.getPrice()));
 
         spinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-                selectedTicketType = ticketTypesList.get(position);
+                selectedTicketType = availableTypes.get(position);
                 tvPrice.setText(String.format("Giá: %,dđ", selectedTicketType.getPrice() * selectedQuantity));
             }
 

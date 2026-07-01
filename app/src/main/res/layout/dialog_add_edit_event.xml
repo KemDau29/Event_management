@@ -140,6 +140,85 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
+        <!-- Phần Early Bird -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vé sớm (Early Bird)"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#185FA5"
+            android:layout_marginBottom="12dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtAdminEarlyBirdPrice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Giá vé sớm (đ)"
+                    android:inputType="number"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtAdminEarlyBirdLimit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Số lượng vé sớm"
+                    android:inputType="number"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+            <TextView
+                android:id="@+id/tvAdminEarlyBirdOpen"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="54dp"
+                android:text="Ngày mở bán sớm"
+                android:gravity="center_vertical"
+                android:textColor="#0F172A"
+                android:background="@drawable/card_background"
+                android:backgroundTint="#F1F5F9"
+                android:paddingHorizontal="16dp"
+                android:layout_marginEnd="4dp"
+                android:drawableEnd="@android:drawable/ic_menu_today"/>
+            <TextView
+                android:id="@+id/tvAdminEarlyBirdDeadline"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="54dp"
+                android:text="Ngày kết thúc bán sớm"
+                android:gravity="center_vertical"
+                android:textColor="#0F172A"
+                android:background="@drawable/card_background"
+                android:backgroundTint="#F1F5F9"
+                android:paddingHorizontal="16dp"
+                android:layout_marginStart="4dp"
+                android:drawableEnd="@android:drawable/ic_menu_today"/>
+        </LinearLayout>
+        <!-- Hết phần Early Bird -->
+
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -211,27 +290,6 @@
                 android:paddingHorizontal="16dp"
                 android:layout_marginStart="4dp"/>
         </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ngày công bố kết quả"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="#64748B"
-            android:layout_marginBottom="8dp"/>
-        <TextView
-            android:id="@+id/tvAdminAnnouncementDate"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:text="Chọn ngày công bố"
-            android:gravity="center_vertical"
-            android:textColor="#0F172A"
-            android:background="@drawable/card_background"
-            android:backgroundTint="#F1F5F9"
-            android:paddingHorizontal="16dp"
-            android:layout_marginBottom="20dp"
-            android:drawableEnd="@android:drawable/ic_menu_agenda"/>
 
         <TextView
             android:layout_width="wrap_content"
