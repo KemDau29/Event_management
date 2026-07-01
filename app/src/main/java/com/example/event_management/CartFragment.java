@@ -245,6 +245,11 @@ public class CartFragment extends Fragment {
                     if (isLimited != null && isLimited) {
                         eventRef.update("remainingTickets", com.google.firebase.firestore.FieldValue.increment(-item.getQuantity()));
                     }
+                    
+                    // Cập nhật số lượng vé Early Bird đã bán
+                    if ("Vé sớm (Early Bird)".equals(item.getTicketType())) {
+                        eventRef.update("earlyBirdSold", com.google.firebase.firestore.FieldValue.increment(item.getQuantity()));
+                    }
                 }
             });
 

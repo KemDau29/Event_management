@@ -64,7 +64,8 @@ public class AdminEventFragment extends Fragment {
     private Date selectedDate;
     private Date selectedOpenDate;
     private Date selectedCloseDate;
-    private Date selectedAnnouncementDate;
+    private Date selectedEarlyBirdOpen;
+    private Date selectedEarlyBirdDeadline;
 
     @Nullable
     @Override
@@ -184,7 +185,10 @@ public class AdminEventFragment extends Fragment {
         TextView tvDate = dialogView.findViewById(R.id.tvAdminEventDate);
         TextView tvOpen = dialogView.findViewById(R.id.tvAdminTicketOpen);
         TextView tvClose = dialogView.findViewById(R.id.tvAdminTicketClose);
-        TextView tvAnnouncement = dialogView.findViewById(R.id.tvAdminAnnouncementDate);
+        TextView tvEarlyBirdOpen = dialogView.findViewById(R.id.tvAdminEarlyBirdOpen);
+        TextView tvEarlyBirdDeadline = dialogView.findViewById(R.id.tvAdminEarlyBirdDeadline);
+        EditText edtEarlyBirdPrice = dialogView.findViewById(R.id.edtAdminEarlyBirdPrice);
+        EditText edtEarlyBirdLimit = dialogView.findViewById(R.id.edtAdminEarlyBirdLimit);
         Spinner spinnerCat = dialogView.findViewById(R.id.spinnerAdminEventCategory);
 
         // Logic toggle limited tickets
@@ -221,9 +225,14 @@ public class AdminEventFragment extends Fragment {
             
             selectedCloseDate = event.getTicketCloseDate();
             if (selectedCloseDate != null) tvClose.setText(sdf.format(selectedCloseDate));
-            
-            selectedAnnouncementDate = event.getAnnouncementDate();
-            if (selectedAnnouncementDate != null) tvAnnouncement.setText(sdf.format(selectedAnnouncementDate));
+
+            selectedEarlyBirdOpen = event.getEarlyBirdOpenDate();
+            if (selectedEarlyBirdOpen != null) tvEarlyBirdOpen.setText(sdf.format(selectedEarlyBirdOpen));
+
+            selectedEarlyBirdDeadline = event.getEarlyBirdDeadline();
+            if (selectedEarlyBirdDeadline != null) tvEarlyBirdDeadline.setText(sdf.format(selectedEarlyBirdDeadline));
+            edtEarlyBirdPrice.setText(String.valueOf(event.getEarlyBirdPrice()));
+            edtEarlyBirdLimit.setText(String.valueOf(event.getEarlyBirdLimit()));
 
             // Set selection for category
             if (event.getCate() != null) {
@@ -239,13 +248,13 @@ public class AdminEventFragment extends Fragment {
             selectedDate = null;
             selectedOpenDate = null;
             selectedCloseDate = null;
-            selectedAnnouncementDate = null;
         }
 
         tvDate.setOnClickListener(v -> showDateTimePicker(tvDate, 0));
         tvOpen.setOnClickListener(v -> showDateTimePicker(tvOpen, 1));
         tvClose.setOnClickListener(v -> showDateTimePicker(tvClose, 2));
-        tvAnnouncement.setOnClickListener(v -> showDateTimePicker(tvAnnouncement, 3));
+        tvEarlyBirdOpen.setOnClickListener(v -> showDateTimePicker(tvEarlyBirdOpen, 5));
+        tvEarlyBirdDeadline.setOnClickListener(v -> showDateTimePicker(tvEarlyBirdDeadline, 4));
 
         dialogView.findViewById(R.id.btnAdminDialogCancel).setOnClickListener(v -> dialog.dismiss());
         dialogView.findViewById(R.id.btnAdminDialogSave).setOnClickListener(v -> {
@@ -256,6 +265,8 @@ public class AdminEventFragment extends Fragment {
             String lngStr = edtLng.getText().toString().trim();
             String priceStr = edtPrice.getText().toString().trim();
             String remainStr = edtRemaining.getText().toString().trim();
+            String ebPriceStr = edtEarlyBirdPrice.getText().toString().trim();
+            String ebLimitStr = edtEarlyBirdLimit.getText().toString().trim();
             boolean isLimited = switchIsLimited.isChecked();
             String img = edtImageUrl.getText().toString().trim();
 
@@ -297,7 +308,12 @@ public class AdminEventFragment extends Fragment {
             newEvent.setDate(selectedDate);
             newEvent.setTicketOpenDate(selectedOpenDate);
             newEvent.setTicketCloseDate(selectedCloseDate);
-            newEvent.setAnnouncementDate(selectedAnnouncementDate);
+            
+            // Save Early Bird Info
+            if (!ebPriceStr.isEmpty()) newEvent.setEarlyBirdPrice(Integer.parseInt(ebPriceStr));
+            if (!ebLimitStr.isEmpty()) newEvent.setEarlyBirdLimit(Integer.parseInt(ebLimitStr));
+            newEvent.setEarlyBirdOpenDate(selectedEarlyBirdOpen);
+            newEvent.setEarlyBirdDeadline(selectedEarlyBirdDeadline);
             
             int catIndex = spinnerCat.getSelectedItemPosition();
             DocumentReference catRef = db.collection("categories").document(categoryList.get(catIndex).getId());
@@ -326,7 +342,8 @@ public class AdminEventFragment extends Fragment {
             case 0: targetDate = selectedDate; break;
             case 1: targetDate = selectedOpenDate; break;
             case 2: targetDate = selectedCloseDate; break;
-            case 3: targetDate = selectedAnnouncementDate; break;
+            case 4: targetDate = selectedEarlyBirdDeadline; break;
+            case 5: targetDate = selectedEarlyBirdOpen; break;
         }
         if (targetDate != null) calendar.setTime(targetDate);
 
@@ -343,7 +360,8 @@ public class AdminEventFragment extends Fragment {
                     case 0: selectedDate = result; break;
                     case 1: selectedOpenDate = result; break;
                     case 2: selectedCloseDate = result; break;
-                    case 3: selectedAnnouncementDate = result; break;
+                    case 4: selectedEarlyBirdDeadline = result; break;
+                    case 5: selectedEarlyBirdOpen = result; break;
                 }
                 tv.setText(sdf.format(result));
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();

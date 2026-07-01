@@ -32,11 +32,15 @@ public class Event implements Serializable {
     private int remainingTickets;
     private java.util.List<TicketType> ticketTypes;
     private boolean isLimited;
+    private int earlyBirdPrice;
+    private int earlyBirdLimit;
+    private Date earlyBirdOpenDate;
+    private Date earlyBirdDeadline;
+    private int earlyBirdSold;
     private java.util.Date startTime;
     private java.util.Date endTime;
     private java.util.Date ticketOpenDate;
     private java.util.Date ticketCloseDate;
-    private java.util.Date announcementDate;
     private java.util.List<TimelineItem> timeline;
 
     public Event() {}
@@ -46,9 +50,6 @@ public class Event implements Serializable {
 
     public java.util.Date getTicketCloseDate() { return ticketCloseDate; }
     public void setTicketCloseDate(java.util.Date ticketCloseDate) { this.ticketCloseDate = ticketCloseDate; }
-
-    public java.util.Date getAnnouncementDate() { return announcementDate; }
-    public void setAnnouncementDate(java.util.Date announcementDate) { this.announcementDate = announcementDate; }
 
     public java.util.Date getStartTime() { return startTime; }
     public void setStartTime(java.util.Date startTime) { this.startTime = startTime; }
@@ -103,6 +104,30 @@ public class Event implements Serializable {
 
     public boolean isLimited() { return isLimited; }
     public void setLimited(boolean limited) { isLimited = limited; }
+
+    public int getEarlyBirdPrice() { return earlyBirdPrice; }
+    public void setEarlyBirdPrice(int earlyBirdPrice) { this.earlyBirdPrice = earlyBirdPrice; }
+
+    public int getEarlyBirdLimit() { return earlyBirdLimit; }
+    public void setEarlyBirdLimit(int earlyBirdLimit) { this.earlyBirdLimit = earlyBirdLimit; }
+
+    public Date getEarlyBirdOpenDate() { return earlyBirdOpenDate; }
+    public void setEarlyBirdOpenDate(Date earlyBirdOpenDate) { this.earlyBirdOpenDate = earlyBirdOpenDate; }
+
+    public Date getEarlyBirdDeadline() { return earlyBirdDeadline; }
+    public void setEarlyBirdDeadline(Date earlyBirdDeadline) { this.earlyBirdDeadline = earlyBirdDeadline; }
+
+    public int getEarlyBirdSold() { return earlyBirdSold; }
+    public void setEarlyBirdSold(int earlyBirdSold) { this.earlyBirdSold = earlyBirdSold; }
+
+    public boolean isEarlyBirdAvailable() {
+        if (earlyBirdPrice <= 0) return false;
+        Date now = new Date();
+        if (earlyBirdOpenDate != null && now.before(earlyBirdOpenDate)) return false;
+        if (earlyBirdDeadline != null && now.after(earlyBirdDeadline)) return false;
+        if (earlyBirdLimit > 0 && earlyBirdSold >= earlyBirdLimit) return false;
+        return true;
+    }
 
     public String getFormattedDate() {
         if (date == null) return "";
