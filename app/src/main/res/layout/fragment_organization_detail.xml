@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#185FA5">
+
+        <ImageView
+            android:id="@+id/btnBackOrg"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="16dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_chevron_right"
+            android:rotation="180"
+            app:tint="#FFFFFF"
+            android:background="@drawable/card_background"
+            android:backgroundTint="#40000000"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:cardCornerRadius="40dp"
+                app:cardElevation="4dp">
+                <ImageView
+                    android:id="@+id/imgOrgDetailLogo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_gallery"/>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/tvOrgDetailName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Tên tổ chức"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvOrgFollowerCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0 người theo dõi"
+            android:textColor="#666666"
+            android:textSize="14sp"/>
+
+        <Button
+            android:id="@+id/btnFollowOrg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Theo dõi"
+            android:backgroundTint="#185FA5"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false"
+            app:cornerRadius="20dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvOrgDetailDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:text="Mô tả về đơn vị tổ chức..."
+        android:textColor="#444444"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EEEEEE"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Sự kiện đang tổ chức"
+        android:textColor="#1A1A1A"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
+
+    <ListView
+        android:id="@+id/listOrgEvents"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@null" />
+
+    <TextView
+        android:id="@+id/tvNoEvents"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Hiện chưa có sự kiện nào từ đơn vị này"
+        android:gravity="center"
+        android:textColor="#999999"
+        android:visibility="gone"/>
+
+</LinearLayout>

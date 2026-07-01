@@ -37,6 +37,7 @@ import com.example.event_management.R;
 import com.example.event_management.adapters.AdminEventAdapter;
 import com.example.event_management.models.Category;
 import com.example.event_management.models.Event;
+import com.example.event_management.models.Organization;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -59,6 +60,7 @@ public class AdminEventFragment extends Fragment {
     private AdminEventAdapter adapter;
     private List<Event> eventList = new ArrayList<>();
     private List<Category> categoryList = new ArrayList<>();
+    private List<Organization> organizationList = new ArrayList<>();
     private FirebaseFirestore db;
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
     private Date selectedDate;
@@ -109,6 +111,7 @@ public class AdminEventFragment extends Fragment {
 
         loadEvents();
         loadCategories();
+        loadOrganizations();
 
         view.findViewById(R.id.btnAddEvent).setOnClickListener(v -> showAddEditDialog(null));
 
@@ -167,6 +170,17 @@ public class AdminEventFragment extends Fragment {
         });
     }
 
+    private void loadOrganizations() {
+        db.collection("organizations").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            organizationList.clear();
+            for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                Organization org = doc.toObject(Organization.class);
+                org.setId(doc.getId());
+                organizationList.add(org);
+            }
+        });
+    }
+
     private void showAddEditDialog(Event event) {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_edit_event, null);
         AlertDialog dialog = new AlertDialog.Builder(getContext()).setView(dialogView).create();
@@ -190,6 +204,7 @@ public class AdminEventFragment extends Fragment {
         EditText edtEarlyBirdPrice = dialogView.findViewById(R.id.edtAdminEarlyBirdPrice);
         EditText edtEarlyBirdLimit = dialogView.findViewById(R.id.edtAdminEarlyBirdLimit);
         Spinner spinnerCat = dialogView.findViewById(R.id.spinnerAdminEventCategory);
+        Spinner spinnerOrg = dialogView.findViewById(R.id.spinnerAdminEventOrg);
 
         // Logic toggle limited tickets
         switchIsLimited.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -202,6 +217,14 @@ public class AdminEventFragment extends Fragment {
         ArrayAdapter<String> catAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, catNames);
         catAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCat.setAdapter(catAdapter);
+
+        // Setup Organization Spinner
+        List<String> orgNames = new ArrayList<>();
+        orgNames.add("Không có đơn vị"); // Option for no organization
+        for (Organization o : organizationList) orgNames.add(o.getName());
+        ArrayAdapter<String> orgAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, orgNames);
+        orgAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerOrg.setAdapter(orgAdapter);
 
         if (event != null) {
             tvTitle.setText("Chỉnh sửa sự kiện");
@@ -242,6 +265,18 @@ public class AdminEventFragment extends Fragment {
                         break;
                     }
                 }
+            }
+
+            // Set selection for organization
+            if (event.getOrganizerId() != null) {
+                for (int i = 0; i < organizationList.size(); i++) {
+                    if (organizationList.get(i).getId().equals(event.getOrganizerId())) {
+                        spinnerOrg.setSelection(i + 1); // +1 because of "Không có đơn vị"
+                        break;
+                    }
+                }
+            } else {
+                spinnerOrg.setSelection(0);
             }
         } else {
             tvTitle.setText("Thêm mới sự kiện");
@@ -318,6 +353,13 @@ public class AdminEventFragment extends Fragment {
             int catIndex = spinnerCat.getSelectedItemPosition();
             DocumentReference catRef = db.collection("categories").document(categoryList.get(catIndex).getId());
             newEvent.setCate(catRef);
+
+            int orgIndex = spinnerOrg.getSelectedItemPosition();
+            if (orgIndex > 0) {
+                newEvent.setOrganizerId(organizationList.get(orgIndex - 1).getId());
+            } else {
+                newEvent.setOrganizerId(null);
+            }
 
             if (event == null) {
                 db.collection("events").add(newEvent).addOnSuccessListener(doc -> {

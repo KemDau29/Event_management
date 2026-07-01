@@ -46,37 +46,44 @@ public class Login extends AppCompatActivity {
             return;
         }
 
-        // Bước 1: Tìm email tương ứng với Username trong Firestore
-        db.collection("users").whereEqualTo("username", username).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        // Lấy document người dùng tìm thấy đầu tiên
-                        DocumentSnapshot doc = task.getResult().getDocuments().get(0);
-                        String email = doc.getString("email");
+        // Bước 1: Tìm người dùng theo Username HOẶC Email trong Firestore
+        com.google.firebase.firestore.Query query;
+        if (username.contains("@")) {
+            query = db.collection("users").whereEqualTo("email", username);
+        } else {
+            query = db.collection("users").whereEqualTo("username", username);
+        }
 
-                        if (email != null) {
-                            // Bước 2: Đăng nhập Firebase Auth bằng Email vừa tìm thấy
-                            mAuth.signInWithEmailAndPassword(email, password)
-                                    .addOnCompleteListener(authTask -> {
-                                        if (authTask.isSuccessful()) {
-                                            // Bước 3: Kiểm tra quyền Admin
-                                            String role = doc.getString("role");
-                                            if (role != null && role.equals("admin")) {
-                                                Toast.makeText(Login.this, "Chào mừng Admin!", Toast.LENGTH_SHORT).show();
-                                                startActivity(new Intent(Login.this, AdminActivity.class));
-                                            } else {
-                                                Toast.makeText(Login.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
-                                                startActivity(new Intent(Login.this, MainActivity.class));
-                                            }
-                                            finish();
-                                        } else {
-                                            Toast.makeText(Login.this, "Sai mật khẩu!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                        }
-                    } else {
-                        Toast.makeText(Login.this, "Tài khoản không tồn tại!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        query.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                // Lấy document người dùng tìm thấy đầu tiên
+                DocumentSnapshot doc = task.getResult().getDocuments().get(0);
+                String email = doc.getString("email");
+
+                if (email != null) {
+                    // Bước 2: Đăng nhập Firebase Auth bằng Email vừa tìm thấy
+                    mAuth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(authTask -> {
+                                if (authTask.isSuccessful()) {
+                                    // Bước 3: Kiểm tra quyền Admin
+                                    String role = doc.getString("role");
+                                    if (role != null && role.equals("admin")) {
+                                        Toast.makeText(Login.this, "Chào mừng Admin!", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(Login.this, AdminActivity.class));
+                                    } else {
+                                        Toast.makeText(Login.this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(Login.this, MainActivity.class));
+                                    }
+                                    finish();
+                                } else {
+                                    String errorMsg = authTask.getException() != null ? authTask.getException().getMessage() : "Sai mật khẩu!";
+                                    Toast.makeText(Login.this, "Lỗi: " + errorMsg, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            } else {
+                Toast.makeText(Login.this, "Tài khoản hoặc email không tồn tại!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

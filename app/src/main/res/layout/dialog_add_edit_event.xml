@@ -304,6 +304,21 @@
             android:layout_width="match_parent"
             android:layout_height="54dp"
             android:background="@drawable/bg_gray_rounded_10"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đơn vị tổ chức"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#666666"
+            android:layout_marginBottom="8dp"/>
+        <Spinner
+            android:id="@+id/spinnerAdminEventOrg"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="@drawable/bg_gray_rounded_10"
             android:layout_marginBottom="32dp"/>
 
         <LinearLayout

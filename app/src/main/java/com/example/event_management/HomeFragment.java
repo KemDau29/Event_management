@@ -18,11 +18,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.event_management.adapters.FeaturedEventAdapter;
+import com.example.event_management.adapters.OrganizationAdapter;
 import com.example.event_management.adapters.UpcomingEventAdapter;
 import com.example.event_management.models.Event;
+import com.example.event_management.models.Organization;
 import com.example.event_management.viewmodels.EventViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,9 +34,10 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
 
-    private RecyclerView recyclerViewUpcomingEvents;
+    private RecyclerView recyclerViewUpcomingEvents, rvOrganizations;
     private UpcomingEventAdapter upcomingAdapter;
     private FeaturedEventAdapter featuredAdapter;
+    private OrganizationAdapter orgAdapter;
     private EventViewModel viewModel;
     private ViewPager2 viewPagerFeatured;
     private TextView tvHomeUserName;
@@ -42,6 +46,7 @@ public class HomeFragment extends Fragment {
 
     private List<Event> allEvents = new ArrayList<>();
     private List<Event> displayList = new ArrayList<>();
+    private List<Organization> orgList = new ArrayList<>();
     private String currentSearchText = "";
 
     @Nullable
@@ -75,15 +80,18 @@ public class HomeFragment extends Fragment {
         btnFilter.setOnClickListener(v -> showFilterMenu(v));
 
         recyclerViewUpcomingEvents = view.findViewById(R.id.listUpcomingEvents);
-
         recyclerViewUpcomingEvents.setLayoutManager(new LinearLayoutManager(requireContext()));
-
         recyclerViewUpcomingEvents.setNestedScrollingEnabled(false);
-
 
         upcomingAdapter = new UpcomingEventAdapter(requireContext(), this::openDetail);
         recyclerViewUpcomingEvents.setAdapter(upcomingAdapter);
 
+        // Organizations RecyclerView
+        rvOrganizations = view.findViewById(R.id.rvOrganizations);
+        rvOrganizations.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        orgAdapter = new OrganizationAdapter(requireContext(), this::openOrgDetail);
+        rvOrganizations.setAdapter(orgAdapter);
+        loadOrganizations();
 
         viewPagerFeatured = view.findViewById(R.id.viewPagerFeatured);
         featuredAdapter = new FeaturedEventAdapter(requireContext(), this::openDetail);
@@ -221,6 +229,28 @@ public class HomeFragment extends Fragment {
         event_detail detailFragment = event_detail.newInstance(event);
         getParentFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, detailFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void loadOrganizations() {
+        db.collection("organizations").addSnapshotListener((value, error) -> {
+            if (value != null) {
+                orgList.clear();
+                for (QueryDocumentSnapshot doc : value) {
+                    Organization org = doc.toObject(Organization.class);
+                    org.setId(doc.getId());
+                    orgList.add(org);
+                }
+                orgAdapter.setOrgList(orgList);
+            }
+        });
+    }
+
+    private void openOrgDetail(Organization org) {
+        OrganizationDetailFragment fragment = OrganizationDetailFragment.newInstance(org);
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit();
     }

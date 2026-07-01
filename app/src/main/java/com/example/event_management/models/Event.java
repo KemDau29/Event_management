@@ -41,15 +41,23 @@ public class Event implements Serializable {
     private java.util.Date endTime;
     private java.util.Date ticketOpenDate;
     private java.util.Date ticketCloseDate;
+    private java.util.Date announcementDate;
+    private String organizerId;
     private java.util.List<TimelineItem> timeline;
 
     public Event() {}
+
+    public String getOrganizerId() { return organizerId; }
+    public void setOrganizerId(String organizerId) { this.organizerId = organizerId; }
 
     public java.util.Date getTicketOpenDate() { return ticketOpenDate; }
     public void setTicketOpenDate(java.util.Date ticketOpenDate) { this.ticketOpenDate = ticketOpenDate; }
 
     public java.util.Date getTicketCloseDate() { return ticketCloseDate; }
     public void setTicketCloseDate(java.util.Date ticketCloseDate) { this.ticketCloseDate = ticketCloseDate; }
+
+    public java.util.Date getAnnouncementDate() { return announcementDate; }
+    public void setAnnouncementDate(java.util.Date announcementDate) { this.announcementDate = announcementDate; }
 
     public java.util.Date getStartTime() { return startTime; }
     public void setStartTime(java.util.Date startTime) { this.startTime = startTime; }

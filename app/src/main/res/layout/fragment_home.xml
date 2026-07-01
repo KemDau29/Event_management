@@ -157,6 +157,29 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đơn vị tổ chức"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#1A1C1E"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:layout_marginBottom="14dp"
+            android:fontFamily="sans-serif-medium"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvOrganizations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="24dp"
+            android:paddingEnd="8dp"
+            android:clipToPadding="false"
+            android:layout_marginBottom="28dp"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

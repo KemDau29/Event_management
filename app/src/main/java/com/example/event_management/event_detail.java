@@ -20,6 +20,7 @@ import com.example.event_management.adapters.TicketTypeAdapter;
 import com.example.event_management.adapters.TimelineAdapter;
 import com.example.event_management.models.Comment;
 import com.example.event_management.models.Event;
+import com.example.event_management.models.Organization;
 import com.example.event_management.models.TicketType;
 import com.example.event_management.models.TimelineItem;
 import com.google.firebase.auth.FirebaseAuth;
@@ -108,10 +109,15 @@ public class event_detail extends Fragment {
             View cardTicketOpen = view.findViewById(R.id.cardTicketOpenInfo);
             TextView tvRegPeriod = view.findViewById(R.id.tvDetailRegistrationPeriod);
             TextView tvActualDate = view.findViewById(R.id.tvDetailEventActualDate);
+            TextView tvAnnounce = view.findViewById(R.id.tvDetailAnnouncementDate);
 
             // Các View hiển thị vé sớm còn lại
             View layoutEBRemaining = view.findViewById(R.id.layoutEarlyBirdRemaining);
             TextView tvEBRemaining = view.findViewById(R.id.tvDetailEarlyBirdRemaining);
+
+            TextView tvOrgName = view.findViewById(R.id.tvDetailOrgName);
+            ImageView imgOrgLogo = view.findViewById(R.id.imgDetailOrgLogo);
+            View layoutOrg = view.findViewById(R.id.layoutOrganizer);
 
             // Ánh xạ các View cho Comment
             layoutCommentsList = view.findViewById(R.id.layoutCommentsList);
@@ -354,6 +360,30 @@ public class event_detail extends Fragment {
                                 tvEBRemaining.setText(String.valueOf(Math.max(0, ebLeft)));
                             } else {
                                 layoutEBRemaining.setVisibility(View.GONE);
+                            }
+
+                            // Load Organizer Info
+                            if (doc.contains("organizerId")) {
+                                String orgId = doc.getString("organizerId");
+                                if (orgId != null && !orgId.isEmpty()) {
+                                    db.collection("organizations").document(orgId).get().addOnSuccessListener(orgDoc -> {
+                                        if (orgDoc.exists()) {
+                                            Organization org = orgDoc.toObject(Organization.class);
+                                            org.setId(orgDoc.getId());
+                                            tvOrgName.setText(org.getName());
+                                            if (org.getLogoUrl() != null && !org.getLogoUrl().isEmpty()) {
+                                                Glide.with(this).load(org.getLogoUrl()).into(imgOrgLogo);
+                                            }
+                                            layoutOrg.setOnClickListener(v -> {
+                                                OrganizationDetailFragment fragment = OrganizationDetailFragment.newInstance(org);
+                                                getParentFragmentManager().beginTransaction()
+                                                        .replace(R.id.fragment_container, fragment)
+                                                        .addToBackStack(null)
+                                                        .commit();
+                                            });
+                                        }
+                                    });
+                                }
                             }
 
                             // Kiểm tra xem trường có tồn tại không
