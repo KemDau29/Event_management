@@ -22,10 +22,14 @@ public class Ticket implements Serializable {
     private String status; // "Đã mua", "Đã bán", "Đã hủy"
     private String confirmCode;
     private String recipientUsername; // Lưu username người nhận nếu đã chuyển
+    private String cancelReason; // Lý do hủy vé
 
     public Ticket() {}
 
     // Getters and Setters
+    public String getCancelReason() { return cancelReason; }
+    public void setCancelReason(String cancelReason) { this.cancelReason = cancelReason; }
+
     public String getTicketId() { return ticketId; }
     public void setTicketId(String ticketId) { this.ticketId = ticketId; }
 

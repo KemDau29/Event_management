@@ -155,6 +155,17 @@
             android:visibility="gone"
             android:text="Người nhận: username"/>
 
+        <TextView
+            android:id="@+id/tvCancelReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:textColor="#B71C1C"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            android:text="Lý do hủy: ..."/>
+
         <LinearLayout
             android:id="@+id/layoutActionButtons"
             android:layout_width="match_parent"

@@ -65,6 +65,7 @@ public class TicketAdapter extends BaseAdapter {
         TextView tvRecipientInfo = view.findViewById(R.id.tvRecipientInfo);
         TextView tvStatus = view.findViewById(R.id.tvTicketStatus);
         TextView tvOngoingNote = view.findViewById(R.id.tvOngoingNote);
+        TextView tvCancelReason = view.findViewById(R.id.tvCancelReason);
         View layoutActions = view.findViewById(R.id.layoutActionButtons);
         Button btnTransfer = view.findViewById(R.id.btnTransferTicket);
         Button btnCancel = view.findViewById(R.id.btnCancelTicket);
@@ -107,6 +108,7 @@ public class TicketAdapter extends BaseAdapter {
             layoutActions.setVisibility(View.GONE);
             tvOngoingNote.setVisibility(View.VISIBLE);
             tvRecipientInfo.setVisibility(View.GONE);
+            tvCancelReason.setVisibility(View.GONE);
 
             view.setOnClickListener(v -> showEventTimelineDialog(ticket.getEventId()));
         } else {
@@ -121,6 +123,7 @@ public class TicketAdapter extends BaseAdapter {
                 btnTransfer.setVisibility(View.VISIBLE);
                 btnCancel.setVisibility(View.VISIBLE);
                 tvRecipientInfo.setVisibility(View.GONE);
+                tvCancelReason.setVisibility(View.GONE);
             } else if ("Đã bán".equals(ticket.getStatus())) {
                 tvStatus.setText("Đã bán");
                 tvStatus.setTextColor(android.graphics.Color.parseColor("#888888"));
@@ -129,6 +132,7 @@ public class TicketAdapter extends BaseAdapter {
                 btnCancel.setVisibility(View.GONE);
                 tvRecipientInfo.setVisibility(View.VISIBLE);
                 tvRecipientInfo.setText("Đã chuyển cho: " + ticket.getRecipientUsername());
+                tvCancelReason.setVisibility(View.GONE);
             } else { // Đã hủy
                 tvStatus.setText("Đã hủy");
                 tvStatus.setTextColor(android.graphics.Color.parseColor("#B71C1C"));
@@ -136,6 +140,13 @@ public class TicketAdapter extends BaseAdapter {
                 btnTransfer.setVisibility(View.GONE);
                 btnCancel.setVisibility(View.GONE);
                 tvRecipientInfo.setVisibility(View.GONE);
+                
+                if (ticket.getCancelReason() != null && !ticket.getCancelReason().isEmpty()) {
+                    tvCancelReason.setVisibility(View.VISIBLE);
+                    tvCancelReason.setText("Lý do hủy: " + ticket.getCancelReason());
+                } else {
+                    tvCancelReason.setVisibility(View.GONE);
+                }
             }
         }
 
@@ -160,6 +171,32 @@ public class TicketAdapter extends BaseAdapter {
         Button btnConfirm = dialogView.findViewById(R.id.btnConfirmTransfer);
         View btnClose = dialogView.findViewById(R.id.btnCloseDialog);
 
+        // Logic chọn số lượng
+        Button btnMinus = dialogView.findViewById(R.id.btnMinusTransfer);
+        Button btnPlus = dialogView.findViewById(R.id.btnPlusTransfer);
+        TextView tvQty = dialogView.findViewById(R.id.tvTransferQuantity);
+        TextView tvMax = dialogView.findViewById(R.id.tvMaxQuantity);
+        
+        final int maxQty = ticket.getQuantity();
+        final int[] currentQty = {1};
+        
+        tvMax.setText("/ Tối đa: " + String.format(Locale.getDefault(), "%02d", maxQty));
+        tvQty.setText(String.valueOf(currentQty[0]));
+        
+        btnMinus.setOnClickListener(v -> {
+            if (currentQty[0] > 1) {
+                currentQty[0]--;
+                tvQty.setText(String.valueOf(currentQty[0]));
+            }
+        });
+        
+        btnPlus.setOnClickListener(v -> {
+            if (currentQty[0] < maxQty) {
+                currentQty[0]++;
+                tvQty.setText(String.valueOf(currentQty[0]));
+            }
+        });
+
         btnCancel.setOnClickListener(v -> dialog.dismiss());
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
@@ -170,13 +207,13 @@ public class TicketAdapter extends BaseAdapter {
                 return;
             }
             dialog.dismiss();
-            checkRecipientAndConfirm(ticket, recipientUsername);
+            checkRecipientAndConfirm(ticket, recipientUsername, currentQty[0]);
         });
 
         dialog.show();
     }
 
-    private void checkRecipientAndConfirm(Ticket ticket, String username) {
+    private void checkRecipientAndConfirm(Ticket ticket, String username, int transferQty) {
         db.collection("users").whereEqualTo("username", username).get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
@@ -198,12 +235,12 @@ public class TicketAdapter extends BaseAdapter {
                         confirmDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
                         TextView tvMsg = confirmView.findViewById(R.id.tvConfirmMessage);
-                        tvMsg.setText("Bạn có chắc chắn chuyển vé cho '" + username + "' đó chứ?");
+                        tvMsg.setText("Bạn có chắc chắn chuyển " + transferQty + " vé cho '" + username + "' đó chứ?");
                         
                         confirmView.findViewById(R.id.btnNo).setOnClickListener(v -> confirmDialog.dismiss());
                         confirmView.findViewById(R.id.btnYes).setOnClickListener(v -> {
                             confirmDialog.dismiss();
-                            transferTicket(ticket, recipientUid, username);
+                            transferTicket(ticket, recipientUid, username, transferQty);
                         });
                         
                         confirmDialog.show();
@@ -211,38 +248,65 @@ public class TicketAdapter extends BaseAdapter {
                 });
     }
 
-    private void transferTicket(Ticket ticket, String recipientUid, String recipientUsername) {
-        // Cập nhật vé cũ thành "Đã bán"
-        db.collection("tickets").document(ticket.getTicketId())
-                .update("status", "Đã bán", "recipientUsername", recipientUsername)
-                .addOnSuccessListener(aVoid -> {
-                    // Tạo một vé mới cho người nhận
-                    String newTicketId = db.collection("tickets").document().getId();
-                    Ticket newTicket = new Ticket();
-                    newTicket.setTicketId(newTicketId);
-                    newTicket.setOrderId(ticket.getOrderId());
-                    newTicket.setEventId(ticket.getEventId());
-                    newTicket.setUserId(recipientUid);
-                    newTicket.setPurchaserId(ticket.getPurchaserId());
-                    newTicket.setTitle(ticket.getTitle());
-                    newTicket.setPrice(ticket.getPrice());
-                    newTicket.setEventDate(ticket.getEventDate());
-                    newTicket.setPurchaseDate(ticket.getPurchaseDate());
-                    newTicket.setLocation(ticket.getLocation());
-                    newTicket.setImgUrl(ticket.getImgUrl());
-                    newTicket.setQuantity(ticket.getQuantity());
-                    newTicket.setStatus("Đã mua");
-                    newTicket.setConfirmCode(ticket.getConfirmCode());
-
-                    db.collection("tickets").document(newTicketId).set(newTicket)
-                            .addOnSuccessListener(aVoid1 -> {
-                                sendTransferEmails(ticket, recipientUid, recipientUsername);
-                                showSuccessDialog();
-                            });
-                });
+    private void transferTicket(Ticket ticket, String recipientUid, String recipientUsername, int transferQty) {
+        com.google.firebase.firestore.WriteBatch batch = db.batch();
+        int totalQty = ticket.getQuantity();
+        
+        if (transferQty == totalQty) {
+            // Trường hợp 1: Chuyển toàn bộ. Cập nhật vé hiện tại thành "Đã bán"
+            com.google.firebase.firestore.DocumentReference senderTicketRef = db.collection("tickets").document(ticket.getTicketId());
+            batch.update(senderTicketRef, "status", "Đã bán", "recipientUsername", recipientUsername);
+        } else {
+            // Trường hợp 2: Chuyển một phần. 
+            // - Cập nhật số lượng vé hiện tại (Vẫn giữ trạng thái "Đã mua")
+            com.google.firebase.firestore.DocumentReference senderTicketRef = db.collection("tickets").document(ticket.getTicketId());
+            batch.update(senderTicketRef, "quantity", totalQty - transferQty);
+            
+            // - Tạo một vé mới trạng thái "Đã bán" để lưu lịch sử cho người gửi
+            String soldTicketId = db.collection("tickets").document().getId();
+            Ticket soldTicket = copyTicket(ticket);
+            soldTicket.setTicketId(soldTicketId);
+            soldTicket.setQuantity(transferQty);
+            soldTicket.setStatus("Đã bán");
+            soldTicket.setRecipientUsername(recipientUsername);
+            batch.set(db.collection("tickets").document(soldTicketId), soldTicket);
+        }
+        
+        // Luôn tạo một vé mới trạng thái "Đã mua" cho người nhận
+        String newTicketId = db.collection("tickets").document().getId();
+        Ticket newTicket = copyTicket(ticket);
+        newTicket.setTicketId(newTicketId);
+        newTicket.setUserId(recipientUid); // Chuyển quyền sở hữu
+        newTicket.setQuantity(transferQty);
+        newTicket.setStatus("Đã mua");
+        batch.set(db.collection("tickets").document(newTicketId), newTicket);
+        
+        batch.commit().addOnSuccessListener(aVoid -> {
+            sendTransferEmails(ticket, recipientUid, recipientUsername, transferQty);
+            showSuccessDialog();
+        });
     }
 
-    private void sendTransferEmails(Ticket ticket, String recipientUid, String recipientUsername) {
+    private Ticket copyTicket(Ticket t) {
+        Ticket nt = new Ticket();
+        nt.setOrderId(t.getOrderId());
+        nt.setEventId(t.getEventId());
+        nt.setUserId(t.getUserId());
+        nt.setPurchaserId(t.getPurchaserId());
+        nt.setTitle(t.getTitle());
+        nt.setPrice(t.getPrice());
+        nt.setEventDate(t.getEventDate());
+        nt.setPurchaseDate(t.getPurchaseDate());
+        nt.setStartTime(t.getStartTime());
+        nt.setEndTime(t.getEndTime());
+        nt.setLocation(t.getLocation());
+        nt.setImgUrl(t.getImgUrl());
+        nt.setConfirmCode(t.getConfirmCode());
+        nt.setTicketType(t.getTicketType());
+        return nt;
+    }
+
+    private void sendTransferEmails(Ticket ticket, String recipientUid, String recipientUsername, int transferQty) {
         // 1. Lấy email người gửi (User hiện tại)
         db.collection("users").document(ticket.getUserId()).get().addOnSuccessListener(senderDoc -> {
             String senderEmail = senderDoc.getString("email");
@@ -255,7 +319,7 @@ public class TicketAdapter extends BaseAdapter {
                 if (senderEmail != null) {
                     String subjectSender = "Xác nhận chuyển vé thành công";
                     String contentSender = "Chào " + senderName + ",\n\n" +
-                            "Bạn đã chuyển thành công vé '" + ticket.getTitle() + "' cho người dùng '" + recipientUsername + "'.\n" +
+                            "Bạn đã chuyển thành công " + transferQty + " vé '" + ticket.getTitle() + "' cho người dùng '" + recipientUsername + "'.\n" +
                             "Mã xác nhận vé: #" + ticket.getConfirmCode() + "\n\n" +
                             "Trân trọng!";
                     EmailHelper.sendEmail(senderEmail, subjectSender, contentSender, new EmailHelper.EmailCallback() {
@@ -267,7 +331,7 @@ public class TicketAdapter extends BaseAdapter {
                 if (recipientEmail != null) {
                     String subjectRecipient = "Bạn nhận được vé sự kiện mới";
                     String contentRecipient = "Chào " + recipientUsername + ",\n\n" +
-                            "Bạn vừa nhận được vé sự kiện '" + ticket.getTitle() + "' từ người dùng '" + (senderName != null ? senderName : "ẩn danh") + "'.\n" +
+                            "Bạn vừa nhận được " + transferQty + " vé sự kiện '" + ticket.getTitle() + "' từ người dùng '" + (senderName != null ? senderName : "ẩn danh") + "'.\n" +
                             "Mã xác nhận vé của bạn là: #" + ticket.getConfirmCode() + "\n" +
                             "Vui lòng kiểm tra trong mục 'Vé của tôi' trên ứng dụng.\n\n" +
                             "Trân trọng!";
@@ -294,18 +358,65 @@ public class TicketAdapter extends BaseAdapter {
     }
 
     private void showCancelConfirmDialog(Ticket ticket) {
-        new AlertDialog.Builder(context)
-                .setTitle("Hủy vé")
-                .setMessage("Bạn có chắc chắn muốn hủy vé này không?")
-                .setPositiveButton("Có", (dialog, which) -> {
-                    db.collection("tickets").document(ticket.getTicketId())
-                            .update("status", "Đã hủy")
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(context, "Đã hủy vé thành công!", Toast.LENGTH_SHORT).show();
-                            });
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_cancel_ticket, null);
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        android.widget.RadioGroup rgReasons = dialogView.findViewById(R.id.rgCancelReasons);
+        EditText edtOther = dialogView.findViewById(R.id.edtOtherReason);
+        Button btnClose = dialogView.findViewById(R.id.btnCancelDialog);
+        Button btnConfirm = dialogView.findViewById(R.id.btnConfirmCancel);
+
+        rgReasons.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rbReasonOther) {
+                edtOther.setVisibility(View.VISIBLE);
+            } else {
+                edtOther.setVisibility(View.GONE);
+            }
+        });
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+
+        btnConfirm.setOnClickListener(v -> {
+            int selectedId = rgReasons.getCheckedRadioButtonId();
+            if (selectedId == -1) {
+                Toast.makeText(context, "Vui lòng chọn lý do hủy", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String reason;
+            if (selectedId == R.id.rbReasonOther) {
+                reason = edtOther.getText().toString().trim();
+                if (reason.isEmpty()) {
+                    Toast.makeText(context, "Vui lòng nhập lý do khác", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } else {
+                android.widget.RadioButton rb = dialogView.findViewById(selectedId);
+                reason = rb.getText().toString();
+            }
+
+            dialog.dismiss();
+            performCancelTicket(ticket, reason);
+        });
+
+        dialog.show();
+    }
+
+    private void performCancelTicket(Ticket ticket, String reason) {
+        db.collection("tickets").document(ticket.getTicketId())
+                .update("status", "Đã hủy", "cancelReason", reason)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(context, "Đã hủy vé thành công!", Toast.LENGTH_SHORT).show();
                 })
-                .setNegativeButton("Không", null)
-                .show();
+                .addOnFailureListener(e -> {
+                    Toast.makeText(context, "Lỗi khi hủy vé: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void showEventTimelineDialog(String eventId) {
