@@ -13,7 +13,6 @@ import com.example.event_management.adapters.TicketAdapter;
 import com.example.event_management.models.Ticket;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +102,6 @@ public class MyTicketsFragment extends Fragment {
         listenerRegistration = db.collection("tickets")
                 .whereEqualTo("userId", uid)
                 .whereEqualTo("status", currentStatus)
-                .orderBy("purchaseDate", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
                         android.util.Log.e("TICKETS_ERROR", "Lỗi load vé: " + error.getMessage());
@@ -111,29 +109,19 @@ public class MyTicketsFragment extends Fragment {
                     }
                     if (value != null) {
                         ticketList.clear();
-                        java.util.Date now = new java.util.Date();
                         for (QueryDocumentSnapshot doc : value) {
                             Ticket ticket = doc.toObject(Ticket.class);
                             
-                            // Lọc bỏ các vé đã kết thúc khỏi mục "Đã mua"
-                            if (currentStatus.equals("Đã mua")) {
-                                java.util.Date endTime = ticket.getEndTime();
-                                if (endTime == null && ticket.getEventDate() != null) {
-                                    // Nếu không có giờ kết thúc, mặc định là hết ngày của eventDate
-                                    java.util.Calendar cal = java.util.Calendar.getInstance();
-                                    cal.setTime(ticket.getEventDate());
-                                    cal.set(java.util.Calendar.HOUR_OF_DAY, 23);
-                                    cal.set(java.util.Calendar.MINUTE, 59);
-                                    endTime = cal.getTime();
-                                }
-                                
-                                if (endTime != null && now.after(endTime)) {
-                                    continue; // Bỏ qua vì sự kiện đã kết thúc
-                                }
-                            }
-                            
+                            // Có thể thêm logic phân loại vé đã kết thúc ở đây nếu muốn
                             ticketList.add(ticket);
                         }
+                        
+                        // Sắp xếp thủ công theo ngày mua giảm dần (để tránh yêu cầu Index phức tạp trên Firestore)
+                        ticketList.sort((t1, t2) -> {
+                            if (t1.getPurchaseDate() == null || t2.getPurchaseDate() == null) return 0;
+                            return t2.getPurchaseDate().compareTo(t1.getPurchaseDate());
+                        });
+
                         adapter.setTicketList(ticketList);
                     }
                 });

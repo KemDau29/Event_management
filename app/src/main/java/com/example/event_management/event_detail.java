@@ -399,7 +399,6 @@ public class event_detail extends Fragment {
 
         db.collection("comments")
                 .whereEqualTo("eventId", event.getId())
-                .orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
                         android.util.Log.e("COMMENT_ERROR", "Lỗi load bình luận: " + error.getMessage());
@@ -407,9 +406,19 @@ public class event_detail extends Fragment {
                     }
 
                     if (value != null) {
-                        layoutCommentsList.removeAllViews();
+                        List<Comment> comments = new ArrayList<>();
                         for (QueryDocumentSnapshot doc : value) {
-                            Comment comment = doc.toObject(Comment.class);
+                            comments.add(doc.toObject(Comment.class));
+                        }
+
+                        // Sắp xếp thủ công theo timestamp tăng dần (để tránh yêu cầu Index trên Firestore)
+                        comments.sort((c1, c2) -> {
+                            if (c1.getTimestamp() == null || c2.getTimestamp() == null) return 0;
+                            return c1.getTimestamp().compareTo(c2.getTimestamp());
+                        });
+
+                        layoutCommentsList.removeAllViews();
+                        for (Comment comment : comments) {
                             addCommentToView(comment);
                         }
                     }
